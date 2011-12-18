@@ -262,24 +262,28 @@ For -flto, it is necessary to add CFLAGS to LDFLAGS.
 In rare circumstances, this can cause trouble, so we allow optionally
 to deactivate this feature.
 
-OPT*FLAGS / NO*OPT:
+OPT*FLAGS / NO*OPT / SAFE:
 
 For most packages, you will only need one of these two CFLAG settings:
 
-1. A semi-optimized setting with flags like -fPIC or -D_FILE_OFFSET_BITS=64
-which (if you want to use them at all) should apply to most packages
-in case these packages provide libraries.
+1. A semi-optimized setting with flags like -D_FILE_OFFSET_BITS=64
+which should apply to most packages although they are not necessarily safe.
 
 2. A "simple" setting for testing (e.g. before you file a bug) or for
 packages for which the semi-optimized setting causes problems.
 
-With this script, you can write in your /etc/make.conf the safe settings
+With this script, you can write in your make.conf the safe settings
 into the usual CFLAGS/CXXFLAGS/LDFLAGS variables.
-Moreover, in /etc/make.conf the variables OPTCFLAGS/OPTCXXFLAGS/OPTLDFLAGS
+Moreover, in make.conf the variables OPTCFLAGS/OPTCXXFLAGS/OPTLDFLAGS
 can be set to the additional flags needed for the semi-optimized setting.
 
 Then by default, this script will use your semi-optimized settings
-except when you set NOOPT*FLAGS=1
+except when you set NOOPT*FLAGS=1. In particular, If you want to test
+(e.g. before you file a bug) you can quickly eliminate all optimizations
+by emerging with the command
+	FLAG_ADD=SAFE emerge -1 relevant_packages
+Then (since SAFE implies NO*OPT=1) the relevant_packages will be built
+without the "simple" setting and without fancy things like removed la-files.
 
 
 Typical examples of lines in /etc/portage/package.cflags:
