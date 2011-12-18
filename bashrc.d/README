@@ -1,0 +1,380 @@
+(C) Martin Väth <martin@mvath.de>
+The license of this project is the GNU Public License GPL-2.
+
+The portage-bashrc-mv project is meant to be used with the
+gentoo portage system and serves two purposes.
+
+1. It provides support for an /etc/portage/bashrc.d directory
+in which you can define functions which are executed during emerge phases.
+
+2. It provides the following functionality in /etc/portage/bashrc.d
+
+(a) Support for an /etc/portage/package.cflags file (or directory)
+in which you can easily execute tasks or modify variables like CFLAGS
+on a per-package basis.
+This is similar to using /etc/portage/env but has a more convenient syntax
+for e.g. modifying CFLAGS.
+
+(b) Support for removing undesired .la files before installation
+
+(c) Support for removing undesired locales before installation
+(similar to app-admin/localepurge, but before installation).
+
+(d) Fixing of portage's behaviour of FEATURES="nodoc noinfo noman"
+with binary packages
+
+
+For 1:
+
+When portage scans /etc/portage/bashrc for the first time,
+all files of the form
+	$CONFIG_ROOT/etc/portage/bashrc.d/*.sh
+are sourced once in alphabetical order.
+These files should only define functions and contain calls to BashrcdPhase.
+
+The function BashrcdPhase defines what should happen at which $EBUILD_PHASE.
+The call convention for this function is:
+	BashrcdPhase name_of_the_phase 'action to be done'
+Here, name_of_the_phase is the name of the portage phase,
+and 'action to be done' will be executed with bash's exec in that phase,
+the order depending on the order of the calls to BashrcdPhase.
+Typical examples for name_of_the_phase are
+	setup
+	preinst
+	pretend
+The special name
+	all
+means that the corresponding action is executed in all phases
+and before the other actions for the ordinary phases are executed.
+The variable $EBUILD_PHASE contains the currently executed phase.
+
+You can find out which phases are called by portage by setting the variable
+$BASHCRD_DEBUG to a nonempty value.
+
+Since there is global variable scope for which we must avoid collision,
+the following name conventions are used: All variables and function names
+are prefixed by the (letter parts of the) file names.
+
+The variable $ED is also set in EAPI=0: This is to simplify writing of
+functions working for all ebuild without dealing with this special case.
+
+For convenience there is also a function
+	BashrcdEcho "output line 1" "output line 2" ...
+available which outputs the argument into a separate line each,
+prefixed with >>> (the latter colorized unless NOCOLOR is set)
+
+
+For 2:
+
+(a) Support for /etc/portage/package.cflags
+This is done in /etc/portage/bashrc.d/*-flag.sh:
+
+You can have a file or directory
+	${CONFIG_ROOT}/etc/portage/package.cflags
+where you can store per-packet CFLAGS, LDFLAGS, and other variables.
+If it is a directory, all non-hidden files/dir (and those not ending in ~)
+in this directory and all its subdirectories are read
+(analogously as >=portage-2.1 reads /etc/portage/package.keywords)
+
+You temporarily add lines to the above file by putting them into the variable
+	FLAG_ADDLINES
+
+The format of the lines (in the above file(s) or FLAG_ADDLINES) is as follows:
+
+Comment lines contain only space or start with "#"
+all other lines should have one of the following two forms:
+
+category/package                DATA  (matches all versions)
+~category/package-version       DATA  (matches all revisions)
+=category/package-version[-rev] DATA  (matches only precise revision)
+
+Optionally, you can also append :SLOT and/or ::REPOSITORY to the first item
+to restrict the matches.
+
+More precisely, the first symbol decides the type to match, and the rest
+of the first word is considered to be a pattern. For instance,
+
+*            DATA (will match everything:       any category/package matches)
+~foo/bar-*   DATA (is the same as foo/bar-*     any version matches)
+=foo/bar-1-* DATA (is the same as ~foo/bar-1-*  any revision matches)
+foo/bar:x::y DATA matches SLOT x from repository y
+*::y*        DATA matches everything from repositories starting with y
+
+i.e. in comparison with portage's configuration files "<", "<=", ">", ">="
+are currently not supported, and you *must* specify the category.
+However, "~" and "=" is supported.
+Note also that the pattern globs * and ? act as pure string globs and can
+also be used in SLOT and repository names; this is slightly different than
+how portage usually treats its configuration files.
+
+All matching lines take effect, i.e. you can e.g. "accumulate" DATA.
+
+You can also add DATA (independent of the above matches) by putting it into
+the variable
+	FLAG_ADD
+
+Summarizing, DATA is a concatenation of the following data (in this order):
+	Matching lines from ${CONFIG_ROOT}/etc/portage/package.cflags
+	Matching lines from $FLAG_ADDLINES
+	$FLAG_ADD
+
+The DATA is a list of commands, separated by spaces
+(the DATA is evaluated, so you can group a command using '...' or "...";
+recall that unquoted variables are expanded in evaluation.
+Fileglobbing is not performed during evaluation.)
+
+A command can have one of these three forms:
+
+	COMMAND  [this executes COMMAND, see below]
+	!COMMAND [this executes COMMAND if $HOSTTYPE = i686   ]
+	~COMMAND [this executes COMMAND if $HOSTTYPE = x86_64 ]
+
+COMMAND in turn can be any shell command which will be executed
+(e.g. setting or unsetting some variable).
+In addition, the following special COMMANDs are supported:
+
+-something
+	This adds -something to the CFLAGS and CXXFLAGS variables
+	if this flags was not included in these variables anyway.
+
++something
+	This removes -something from the variables
+	CFLAGS, CXXFLAGS, OPTCFLAGS, OPTCXXFLAGS
+	Note that "something" can contain patterns, e.g.
+	+O?
+		removes all flags of type -O0, -O1, -O2, ...
+/-foo/-bar
+	This is somewhat similar too +foo -bar with the only difference
+	that the preferred place of -bar is at the place of the first
+	matching -foo. For instance:
+	/-O?/-O2
+		will replace the first -O? by -O2 and remove all other -O?
+	/-march*/-march=native
+		will transfer your -march setting to -march=native
+ATHLON32
+	This is somewhat special: It attempts to setup the compiler
+	for 32-bit-mode cross-compiling (e.g. by setting CC, CXX)
+	and by modifying -march. This may or may not work.
+
+VAR+=WORDS
+	Add each word in WORDS to variable (with a separating space
+	if necessary) unless VAR already contained this word.
+	The individuals words are separated by spaces, but WORDS
+	is evaluated so that you can use quoting.
+VAR-=WORDS
+	Analogously to VAR+=WORDS, only that the words are removed.
+VAR/=/foo/WORDS
+	Replace foo by WORDS
+
+The following names for VAR are treated specially in the above cases:
+C*FLAGS=...
+	This sets CFLAGS, CXXFLAGS simultaneously and clears
+	OPTCFLAG, OPTCXXFLAGS
+C*FLAGS+=...
+	Adds to CFLAGS, CXXFLAGS
+C*FLAGS-=...
+	Removes from CFLAGS, CXXFLAGS, OPTCFLAG, OPTCXXFLAGS
+C*FLAGS/=/foo/bar
+	Similarly as C*FLAGS+=foo C*FLAGS-=bar
+*FLAGS=...
+	This sets CFLAGS, CXXFLAGS and clears
+	OPTCFLAGS, OPTCXXFLAGS, LDFLAGS, OPTLDFLAGS
+*FLAGS+=...
+	Adds to CFLAGS, CXXFLAGS
+*FLAGS-=...
+	Removes from CFLAGS, CXXFLAGS, OPTCFLAG, OPTCXXFLAGS,
+	LDFLAGS, OPTLDFLAGS
+*FLAGS/=/foo/bar
+	Similarly as *FLAGS+=foo *FLAGS-=bar
+NOC*=...
+	means the same as
+NOC*OPT=...
+	This sets simultaneously the special variables
+	NOCOPT, NOCXXOPT (see below).
+NO*OPT=...
+	This sets simultaneously the special variables
+	NOCOPT, NOCXXOPT, NOLDOPT (see below).
+NOLD*=...
+	This sets simultaneously the special variables
+	NOLDOPT, NOLDADD (see below).
+NO*=...
+	This sets simultaneously all of the special variables
+	NOCOPT, NOCXXOPT, NOLDOPT, NOLDADD, NOFFLAGS, NOFCFLAGS (see below).
+
+SAFE
+	This is a shortcut for
+		NO*OPT=1 NOLDADD=1 NOCADD=1 LDFLAGS=''
+		CONFIG_SITE='' NOLAFILEREMOVE=1
+	Note that this is the only command which modifies the variables
+	CONFIG_SITE NOLAFILEREMOVE
+
+After all COMMANDs have been executed, some additional actions are taken.
+You can prevent this by setting the corresponding variables nonempty
+(either by a COMMAND or in the environment):
+
+NOLDOPT
+	If this variable is empty, then the OPTLDFLAGS will be added
+	to the LDFLAGS
+NOLDOPT
+	If this variable is empty, then the OPTLDFLAGS will be added
+	to the LDFLAGS
+NOCOPT
+	If this variable is empty, then the OPTCFLAGS will be added
+	to the CFLAGS
+NOCXXOPT
+	If this variable is empty, then the OPTCXXFLAGS will be added
+	to the CFLAGS
+NOLDADD
+	If this variable is empty, the LDFLAGS variable finally
+	calculated will be added to the CFLAGS and CXXFLAGS
+NOCADD
+	If this variable is empty and LDFLAGS contains -flto*, the
+	CFLAGS variable finally calculated will be added to the LDFLAGS.
+NOFFLAGS
+	If this variable is empty, then the CFLAGS finally calculated
+	will also be used as FFLAGS
+NOFCFLAGS
+	If this variable is empty, then the FFLAGS finally calculated
+	will also be used as FCFLAGS
+NOFILTER_CFLAGS
+	If this variable is empty, then CFLAGS known to be forbidden
+	for C will be removed.
+NOFILTER_FFLAGS
+	If this variable is empty, then FFLAGS known to be forbidden
+	for fortran will be removed.
+NOFILTER_FCFLAGS
+	If this variable is empty, then CFFLAGS known to be
+	forbidden for fortran will be removed.
+
+
+Some motivation for the above commands/variables:
+
+NOLDFLAGS:
+Usually, packages take care of LDFLAGS automatically, so adding them to
+CFLAGS/CXXFLAGS causes lot of warnings and even breaks some compilations.
+Therefore, you will often want to set NOLDADD=1.
+However, some buggy packages ignore LDFLAGS which might be a securitry issue,
+e.g. if -Wl,-z,now is ignored. Therefore, the default of this script is to
+add LDFLAGS unless you explicitly forbid it.
+If you have compilation problems, setting NOLDADD=1 is what you should try
+first - especially before you send a bug report to bugs.gentoo.org.
+(But before you do the latter, you should try with SAFE anyway).
+
+NOCFLAGS:
+For -flto, it is necessary to add CFLAGS to LDFLAGS.
+In rare circumstances, this can cause trouble, so we allow optionally
+to deactivate this feature.
+
+OPT*FLAGS / NO*OPT:
+
+For most packages, you will only need one of these two CFLAG settings:
+
+1. A semi-optimized setting with flags like -fPIC or -D_FILE_OFFSET_BITS=64
+which (if you want to use them at all) should apply to most packages
+in case these packages provide libraries.
+
+2. A "simple" setting for testing (e.g. before you file a bug) or for
+packages for which the semi-optimized setting causes problems.
+
+With this script, you can write in your /etc/make.conf the safe settings
+into the usual CFLAGS/CXXFLAGS/LDFLAGS variables.
+Moreover, in /etc/make.conf the variables OPTCFLAGS/OPTCXXFLAGS/OPTLDFLAGS
+can be set to the additional flags needed for the semi-optimized setting.
+
+Then by default, this script will use your semi-optimized settings
+except when you set NOOPT*FLAGS=1
+
+
+Typical examples of lines in /etc/portage/package.cflags:
+
+dev-libs/DirectFB 'export VIDEO_CARDS="nvidia"' # observe the quoting
+media-libs/freetype +ftree-vectorize*           # Filter -ftree-vectorize*
+media-video/ffmpeg EXTRA_ECONF='' +combine
+media-video/kaffeine !/-O?/-O2 !+finline-functions # filter if in 32bit-mode
+media-video/mpeg4ip MAKEOPTS="-j1"
+sys-boot/grub SAFE                              # Use "safe" settings
+sys-fs/sysfsutils NOLDADD=1
+sci-libs/blas-atlas FEATURES-=ccache            # See below...
+
+
+Important note concerning the FEATURES-Variable:
+
+For >=sys-apps/portage-2.2_rc68 you should better modify FEATURES by using
+/etc/portage/package.env than by using package.cflags:
+Modifying FEATURES with package.cflags need not have the desired effect.
+Anyway, the above example FEATURES-=ccache might work (as an exception);
+however, it is better to use /etc/portage/package.env anyway.
+For the above example, put into /etc/portage/package.env better the line
+sci-libs/blas-atlas noccache.conf
+and create a file /etc/portage/env/noccache.conf with the line
+FEATURES="-ccache"
+In a similar manner, you should handle modifications of other FEATURES.
+
+
+(b) Support for removing undesired .la files before installation
+This is done in /etc/portage/bashrc.d/*-remove_la.sh:
+
+If the variable
+	NOLAFILEREMOVE
+is empty, all those *.la files are deleted (before merging to the filesystem)
+which appear to be unnecessary at runtime.
+It is recommended anyway to use >=portage-2.2_rc68 with FEATURES=fixlafiles.
+
+Note that the variable NOLAFILEREMOVE can be set per package by using (a).
+
+
+(c) Support for removing undesired locales before installation
+This is done in /etc/portage/bashrc.d/*-localepurge.sh:
+
+If app-admin/localepurge is installed and configured and the variable
+	NOLOCALEPURGE
+is empty, an action similar to localepurge is performed which is similar
+to the localepurge command but happens before installation
+(so that the removed files are not recorded in portage's database).
+
+Note that the variable NOLOCALEPURGE can be set per package by using (a).
+
+
+(d) Fixing FEATURES="nodoc noinfo noman" with binary packages
+This is done in /etc/portage/bashrc.d/*-no{doc,info,man}.sh:
+
+If the corresponding variable
+	NODOCREMOVE
+	NOINFOREMOVE
+	NOMANREMOVE
+is empty and FEATURES contains nodoc, noinfo, or noman, respectively, then
+all files corresponding to doc|info|man are removed before installation.
+This fixes problems with portage which merges these files from binary packages
+even if the corresponding FEATURE is set.
+
+Note that the variables NO*REMOVE can be set per package by using (a).
+
+
+
+Recommendations and notes concerning earlier versions of this project:
+
+(1)
+Some earlier versions of this project removed bash-completion files
+by default (if you did not want them explicitly).
+This is no longer the case, since this is better done by setting
+INSTALL_MASK in make.conf.
+For instance, to avoid installing bash-completion support, set
+	INSTALL_MASK="/usr/share/bash-completion"
+
+(2)
+Some earlier versions of this project have set the variables LANG or LC_ALL
+to sane values.
+This is no longer the case, since it is better to do this in make.conf.
+For instance, I recommend to put something like
+	LANG=C
+	LC_CTYPE="${LANG}"
+	LC_COLLATE="${LANG}"
+	LC_MESSAGES="${LANG}"
+into make.conf to avoid triggering bugs with not well-tested settings.
+Using package.cflags, you can still change these settings per package.
+
+(3)
+In some earlier versions of this project lafilefixer was called by default.
+This is not longer the case, since this happens automatically if you use
+>=portage-2.2_rc68 and FEATURES=fixlafiles
+I strongly recommend to use that portage feature.
