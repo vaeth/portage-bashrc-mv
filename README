@@ -20,8 +20,6 @@ for e.g. modifying CFLAGS.
 (c) Support for removing undesired locales before installation
 (similar to app-admin/localepurge, but before installation).
 
-(d) Fixing of portage's behaviour of FEATURES="nodoc noinfo noman"
-with binary packages
 
 See bashrc.d/README for more details.
 

@@ -20,9 +20,6 @@ for e.g. modifying CFLAGS.
 (c) Support for removing undesired locales before installation
 (similar to app-admin/localepurge, but before installation).
 
-(d) Fixing of portage's behaviour of FEATURES="nodoc noinfo noman"
-with binary packages
-
 
 For 1:
 
@@ -335,21 +332,6 @@ to the localepurge command but happens before installation
 Note that the variable NOLOCALEPURGE can be set per package by using (a).
 
 
-(d) Fixing FEATURES="nodoc noinfo noman" with binary packages
-This is done in /etc/portage/bashrc.d/*-no{doc,info,man}.sh:
-
-If the corresponding variable
-	NODOCREMOVE
-	NOINFOREMOVE
-	NOMANREMOVE
-is empty and FEATURES contains nodoc, noinfo, or noman, respectively, then
-all files corresponding to doc|info|man are removed before installation.
-This fixes problems with portage which merges these files from binary packages
-even if the corresponding FEATURE is set.
-
-Note that the variables NO*REMOVE can be set per package by using (a).
-
-
 
 Recommendations and notes concerning earlier versions of this project:
 
@@ -378,3 +360,8 @@ In some earlier versions of this project lafilefixer was called by default.
 This is not longer the case, since this happens automatically if you use
 >=portage-2.2_rc68 and FEATURES=fixlafiles
 I strongly recommend to use that portage feature.
+
+(4)
+Some earlier versions of this project made an attempt to fix portage's
+behaviour concerning FEATURES="nodoc noinfo noman" with binary packages.
+Since this is fixed in current portage versions, this support was removed.
