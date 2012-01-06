@@ -26,8 +26,8 @@ BashrcdMain() {
 	do	case "${bashrcd}" in
 		*/bashrcd.sh)	continue;;
 		esac
-		test -f "${bashrcd}" || continue
-		. "${bashrcd}" || die "failed to source ${bashrcd}"
+		test -r "${bashrcd}" || continue
+		. "${bashrcd}"
 		[ -z "${BASHRCD_DEBUG}" ] || BashrcdEcho "${bashrcd} sourced"
 	done
 	unset -f BashrcdPhase
@@ -54,8 +54,9 @@ BashrcdMain() {
 	do	eval "bashrcd_max=\${bashrcd_phases_c_${bashrcd_phase}}"
 		[ -z "${bashrcd_max}" ] && continue
 		bashrcd_num=0
-		while [ ${bashrcd_num} -le ${bashrcd_max} ]
+		while :
 		do	eval "eval \"\\\${bashrcd_phases_${bashrcd_num}_${bashrcd_phase}}\""
+			[ ${bashrcd_num} -eq ${bashrcd_max} ] && break
 			bashrcd_num=$(( ${bashrcd_num} + 1 ))
 		done
 	done

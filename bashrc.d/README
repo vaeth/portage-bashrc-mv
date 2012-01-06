@@ -23,10 +23,16 @@ for e.g. modifying CFLAGS.
 
 For 1:
 
+It is attempted to keep sourcing of files as minimal as possible
+to not decrease the efficiency of portage more than absolutely necessary.
+This works as follows:
+
 When portage scans /etc/portage/bashrc for the first time,
-all files of the form
+it sources once all files of the form
 	$CONFIG_ROOT/etc/portage/bashrc.d/*.sh
-are sourced once in alphabetical order.
+in alphabetical order (the exceptional file bashrc.sh contains the main code
+for this and is therefore sourced first in any case; to fix the order,
+I recommend to keep all other filenames in the form [0-9][0-9]-*.sh).
 These files should only define functions and contain calls to BashrcdPhase.
 
 The function BashrcdPhase defines what should happen at which $EBUILD_PHASE.
@@ -53,11 +59,12 @@ the following name conventions are used: All variables and function names
 are prefixed by the (letter parts of the) file names.
 
 The variable $ED is also set in EAPI=0: This is to simplify writing of
-functions working for all ebuild without dealing with this special case.
+functions which work for all ebuilds without taking care of the EAPI
+in this respect.
 
-For convenience there is also a function
+For convenience, there is also a function
 	BashrcdEcho "output line 1" "output line 2" ...
-available which outputs the argument into a separate line each,
+available which outputs the arguments into a separate line each,
 prefixed with >>> (the latter colorized unless NOCOLOR is set)
 
 
@@ -197,7 +204,6 @@ NOLD*=...
 NO*=...
 	This sets simultaneously all of the special variables
 	NOCOPT, NOCXXOPT, NOLDOPT, NOLDADD, NOFFLAGS, NOFCFLAGS (see below).
-
 SAFE
 	This is a shortcut for
 		NO*OPT=1 NOLDADD=1 NOCADD=1 LDFLAGS=''
@@ -209,9 +215,6 @@ After all COMMANDs have been executed, some additional actions are taken.
 You can prevent this by setting the corresponding variables nonempty
 (either by a COMMAND or in the environment):
 
-NOLDOPT
-	If this variable is empty, then the OPTLDFLAGS will be added
-	to the LDFLAGS
 NOLDOPT
 	If this variable is empty, then the OPTLDFLAGS will be added
 	to the LDFLAGS
@@ -246,7 +249,7 @@ NOFILTER_FCFLAGS
 
 Some motivation for the above commands/variables:
 
-NOLDFLAGS:
+NOLDADD:
 Usually, packages take care of LDFLAGS automatically, so adding them to
 CFLAGS/CXXFLAGS causes lot of warnings and even breaks some compilations.
 Therefore, you will often want to set NOLDADD=1.
@@ -257,45 +260,45 @@ If you have compilation problems, setting NOLDADD=1 is what you should try
 first - especially before you send a bug report to bugs.gentoo.org.
 (But before you do the latter, you should try with SAFE anyway).
 
-NOCFLAGS:
+NOCADD:
 For -flto, it is necessary to add CFLAGS to LDFLAGS.
 In rare circumstances, this can cause trouble, so we allow optionally
 to deactivate this feature.
 
-OPT*FLAGS / NO*OPT / SAFE:
+NO*OPT / SAFE:
 
 For most packages, you will only need one of these two CFLAG settings:
 
-1. A semi-optimized setting with flags like -D_FILE_OFFSET_BITS=64
+1. A (semi-)optimized setting with flags like -D_FILE_OFFSET_BITS=64
 which should apply to most packages although they are not necessarily safe.
 
 2. A "simple" setting for testing (e.g. before you file a bug) or for
-packages for which the semi-optimized setting causes problems.
+packages for which the optimized setting causes problems.
 
 With this script, you can write in your make.conf the safe settings
 into the usual CFLAGS/CXXFLAGS/LDFLAGS variables.
 Moreover, in make.conf the variables OPTCFLAGS/OPTCXXFLAGS/OPTLDFLAGS
-can be set to the additional flags needed for the semi-optimized setting.
+can be set to the additional flags needed for the optimized setting.
 
-Then by default, this script will use your semi-optimized settings
-except when you set NOOPT*FLAGS=1. In particular, If you want to test
+Then by default, this script will use your optimized settings
+except when you set NO*OPT=1. In particular, If you want to test
 (e.g. before you file a bug) you can quickly eliminate all optimizations
 by emerging with the command
 	FLAG_ADD=SAFE emerge -1 relevant_packages
 Then (since SAFE implies NO*OPT=1) the relevant_packages will be built
-without the "simple" setting and without fancy things like removed la-files.
+without "optimized" flags and without fancy things like removed la-files.
 
 
 Typical examples of lines in /etc/portage/package.cflags:
 
-dev-libs/DirectFB 'export VIDEO_CARDS="nvidia"' # observe the quoting
-media-libs/freetype +ftree-vectorize*           # Filter -ftree-vectorize*
+sci-mathematics/scilab "export PVM_ARCH='LINUX'" # observe the quoting
+media-libs/freetype +ftree-vectorize*            # Filter -ftree-vectorize*
 media-video/ffmpeg EXTRA_ECONF='' +combine
 media-video/kaffeine !/-O?/-O2 !+finline-functions # filter if in 32bit-mode
 media-video/mpeg4ip MAKEOPTS="-j1"
-sys-boot/grub SAFE                              # Use "safe" settings
+sys-boot/grub SAFE                               # Use "safe" settings
 sys-fs/sysfsutils NOLDADD=1
-sci-libs/blas-atlas FEATURES-=ccache            # See below...
+sci-libs/*-atlas FEATURES-=ccache                # Bad, see below...
 
 
 Important note concerning the FEATURES-Variable:
@@ -306,13 +309,13 @@ Modifying FEATURES with package.cflags need not have the desired effect.
 Anyway, the above example FEATURES-=ccache might work (as an exception);
 however, it is better to use /etc/portage/package.env anyway.
 For the above example, put into /etc/portage/package.env better the line
-sci-libs/blas-atlas noccache.conf
+sci-libs/*-atlas noccache.conf
 and create a file /etc/portage/env/noccache.conf with the line
 FEATURES="-ccache"
 In a similar manner, you should handle modifications of other FEATURES.
 
 
-(b) Support for removing undesired .la files before installation
+(b) Support for removing undesired .la files before installation.
 This is done in /etc/portage/bashrc.d/*-remove_la.sh:
 
 If the variable
@@ -324,7 +327,7 @@ It is recommended anyway to use >=portage-2.2_rc68 with FEATURES=fixlafiles.
 Note that the variable NOLAFILEREMOVE can be set per package by using (a).
 
 
-(c) Support for removing undesired locales before installation
+(c) Support for removing undesired locales before installation.
 This is done in /etc/portage/bashrc.d/*-localepurge.sh:
 
 If app-admin/localepurge is installed and configured and the variable
@@ -360,7 +363,7 @@ into make.conf to avoid triggering bugs with not well-tested settings.
 Using package.cflags, you can still change these settings per package.
 
 (3)
-In some earlier versions of this project lafilefixer was called by default.
+In some earlier versions of this project, lafilefixer was called by default.
 This is not longer the case, since this happens automatically if you use
 >=portage-2.2_rc68 and FEATURES=fixlafiles
 I strongly recommend to use that portage feature.
