@@ -143,7 +143,7 @@ In addition, the following special COMMANDs are supported:
 
 +something
 	This removes -something from the variables
-	CFLAGS, CXXFLAGS, OPTCFLAGS, OPTCXXFLAGS
+	CFLAGS, CXXFLAGS, CPPFLAGS, OPTCFLAGS, OPTCXXFLAGS, OPTCPPFLAGS
 	Note that "something" can contain patterns, e.g.
 	+O?
 		removes all flags of type -O0, -O1, -O2, ...
@@ -172,38 +172,40 @@ VAR/=/foo/WORDS
 
 The following names for VAR are treated specially in the above cases:
 C*FLAGS=...
-	This sets CFLAGS, CXXFLAGS simultaneously and clears
-	OPTCFLAG, OPTCXXFLAGS
+	This sets CFLAGS, CXXFLAGS simultaneously and clears CPPFLAGS,
+	OPTCFLAG, OPTCXXFLAGS, OPTCPPFLAGS
 C*FLAGS+=...
 	Adds to CFLAGS, CXXFLAGS
 C*FLAGS-=...
-	Removes from CFLAGS, CXXFLAGS, OPTCFLAG, OPTCXXFLAGS
+	Removes from CFLAGS, CXXFLAGS, CPPFLAGS,
+	OPTCFLAG, OPTCXXFLAGS, OPTCPPFLAGS
 C*FLAGS/=/foo/bar
-	Similarly as C*FLAGS+=foo C*FLAGS-=bar
+	Similarly to C*FLAGS+=foo C*FLAGS-=bar
 *FLAGS=...
-	This sets CFLAGS, CXXFLAGS and clears
-	OPTCFLAGS, OPTCXXFLAGS, LDFLAGS, OPTLDFLAGS
+	This sets CFLAGS, CXXFLAGS and clears CPPFLAGS, LDFLAGS,
+	OPTCFLAGS, OPTCXXFLAGS, OPTCPPFLAGS, OPTLDFLAGS
 *FLAGS+=...
-	Adds to CFLAGS, CXXFLAGS
+	Adds to CFLAGS, CXXFLAGS (currently the same as C*FLAGS+=...)
 *FLAGS-=...
-	Removes from CFLAGS, CXXFLAGS, OPTCFLAG, OPTCXXFLAGS,
-	LDFLAGS, OPTLDFLAGS
+	Removes from CPPFLAGS, CFLAGS, CXXFLAGS, LDFLAGS,
+	OPTCPPFLAGS, OPTCFLAGS,	OPTCXXFLAGS, OPTLDFLAGS
 *FLAGS/=/foo/bar
-	Similarly as *FLAGS+=foo *FLAGS-=bar
+	Similarly to *FLAGS+=foo *FLAGS-=bar
 NOC*=...
 	means the same as
 NOC*OPT=...
 	This sets simultaneously the special variables
-	NOCOPT, NOCXXOPT (see below).
+	NOCOPT, NOCXXOPT, NOCPPOPT (see below).
 NO*OPT=...
 	This sets simultaneously the special variables
-	NOCOPT, NOCXXOPT, NOLDOPT (see below).
+	NOCOPT, NOCXXOPT, NOCPPOPT, NOLDOPT (see below).
 NOLD*=...
 	This sets simultaneously the special variables
 	NOLDOPT, NOLDADD (see below).
 NO*=...
 	This sets simultaneously all of the special variables
-	NOCOPT, NOCXXOPT, NOLDOPT, NOLDADD, NOFFLAGS, NOFCFLAGS (see below).
+	NOCOPT, NOCXXOPT, NOCPPOPT, NOLDOPT, NOLDADD, NOFFLAGS,
+	NOFCFLAGS (see below).
 SAFE
 	This is a shortcut for
 		NO*OPT=1 NOLDADD=1 NOCADD=1 LDFLAGS=''
@@ -224,6 +226,9 @@ NOCOPT
 NOCXXOPT
 	If this variable is empty, then the OPTCXXFLAGS will be added
 	to the CFLAGS
+NOCPPOPT
+	If this variable is empty, then the OPTCPPFLAGS will be added
+	to the CPPFLAGS
 NOLDADD
 	If this variable is empty, the LDFLAGS variable finally
 	calculated will be added to the CFLAGS and CXXFLAGS
@@ -243,7 +248,7 @@ NOFILTER_FFLAGS
 	If this variable is empty, then FFLAGS known to be forbidden
 	for fortran will be removed.
 NOFILTER_FCFLAGS
-	If this variable is empty, then CFFLAGS known to be
+	If this variable is empty, then FCFLAGS known to be
 	forbidden for fortran will be removed.
 
 
@@ -261,7 +266,7 @@ first - especially before you send a bug report to bugs.gentoo.org.
 (But before you do the latter, you should try with SAFE anyway).
 
 NOCADD:
-For -flto, it is necessary to add CFLAGS to LDFLAGS.
+For -flto, it is necessary to add CFLAGS and CXXFLAGS to LDFLAGS.
 In rare circumstances, this can cause trouble, so we allow optionally
 to deactivate this feature.
 

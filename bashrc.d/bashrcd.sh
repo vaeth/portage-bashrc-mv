@@ -1,5 +1,5 @@
 #!/bin/bash
-# (C) Martin Väth <martin@mvath.de>
+# (C) Martin V\"ath <martin@mvath.de>
 
 BashrcdEcho() {
 	case "${NOCOLOR}" in

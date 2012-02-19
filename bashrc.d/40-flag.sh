@@ -1,5 +1,5 @@
 #!/bin/bash
-# (C) Martin Väth <martin@mvath.de>
+# (C) Martin V\"ath <martin@mvath.de>
 
 FlagEval() {
 	case "${-}" in
@@ -101,22 +101,28 @@ FlagAddCFlags() {
 FlagSubCFlags() {
 	FlagSub CFLAGS "${@}"
 	FlagSub CXXFLAGS "${@}"
+	FlagSub CPPFLAGS "${@}"
 	FlagSub OPTCFLAGS "${@}"
 	FlagSub OPTCXXFLAGS "${@}"
+	FlagSub OPTCPPFLAGS "${@}"
 }
 
 FlagReplaceCFlags() {
 	FlagReplace CFLAGS "${@}"
 	FlagReplace CXXFLAGS "${@}"
+	FlagReplace CPPFLAGS "${@}"
 	FlagSub OPTCFLAGS "${1}"
 	FlagSub OPTCXXFLAGS "${1}"
+	FlagSub OPTCPPFLAGS "${1}"
 }
 
 FlagSetallcflags() {
 	FlagSet CFLAGS "${@}"
 	CXXFLAGS="${CFLAGS}"
+	CPPFLAGS=''
 	OPTCFLAGS=''
 	OPTCXXFLAGS=''
+	OPTCPPFLAGS=''
 }
 
 FlagAddAllFlags() {
@@ -215,10 +221,12 @@ FlagExecute() {
 		'NOC*OPT='*|'NOC*='*)
 			FlagEval FlagSet NOCOPT "${ex#*=}"
 			NOCXXOPT="${NOCOPT}"
+			NOCPPOPT="${NOCOPT}"
 		;;
 		'NO*OPT='*)
 			FlagEval FlagSet NOCOPT "${ex#*=}"
 			NOCXXOPT="${NOCOPT}"
+			NOCPPOPT="${NOCOPT}"
 			NOLDOPT="${NOCOPT}"
 		;;
 		'NOLD*='*)
@@ -228,6 +236,7 @@ FlagExecute() {
 		'NO*'*)
 			FlagEval FlagSet NOCOPT "${ex#*=}"
 			NOCXXOPT="${NOCOPT}"
+			NOCPPOPT="${NOCOPT}"
 			NOLDOPT="${NOCOPT}"
 			NOLDADD="${NOCOPT}"
 			NOFFLAGS="${NOCOPT}"
@@ -236,6 +245,7 @@ FlagExecute() {
 		'SAFE')
 			NOCOPT=1
 			NOCXXOPT=1
+			NOCPPOPT=1
 			NOLDOPT=1
 			NOLDADD=1
 			NOCADD=1
@@ -348,12 +358,13 @@ FlagSetFlags() {
 	FlagEval FlagExecute "${FLAG_ADD}"
 	[ -n "${NOLDOPT}" ]  || FlagAdd LDFLAGS ${OPTLDFLAGS}
 	[ -n "${NOCADD}" ]   || case "${LDFLAGS}" in
-		*'-flto'*) ld="${CFLAGS}";;
+		*'-flto'*) ld="${CFLAGS} ${CXXFLAGS}";;
 		esac
 	[ -n "${NOLDADD}" ]  || FlagAddCFlags ${LDFLAGS}
 	FlagAdd ldadd ${ld}
 	[ -n "${NOCOPT}" ]   || FlagAdd CFLAGS ${OPTCFLAGS}
 	[ -n "${NOCXXOPT}" ] || FlagAdd CXXFLAGS ${OPTCXXFLAGS}
+	[ -n "${NOCPPOPT}" ] || FlagAdd CPPFLAGS ${OPTCPPFLAGS}
 	[ -n "${NOFFLAGS}" ] || FFLAGS="${CFLAGS}"
 	[ -n "${NOFCFLAGS}" ] || FCFLAGS="${FFLAGS}"
 	[ -n "${NOFILTER_CFLAGS}" ] || FlagSub CFLAGS \
@@ -374,8 +385,8 @@ FlagSetFlags() {
 
 FlagInfoOutput() {
 	local out
-	for out in FEATURES CFLAGS CXXFLAGS FFLAGS FCFLAGS LDFLAGS MAKEOPTS \
-		EXTRA_ECONF EXTRA_EMAKE
+	for out in FEATURES CFLAGS CXXFLAGS CPPFLAGS FFLAGS FCFLAGS LDFLAGS \
+		MAKEOPTS EXTRA_ECONF EXTRA_EMAKE
 	do	eval "[ -n \"\${${out}}\" ] && \
 			BashrcdEcho \"${out}='\${${out}}'\""
 	done
@@ -392,7 +403,7 @@ FlagSetup() {
 	FlagCheck() {
 :
 }
-	export CFLAGS CXXFLAGS LDFLAGS FFLAGS FCFLAGS
+	export CFLAGS CXXFLAGS CPPFLAGS LDFLAGS FFLAGS FCFLAGS
 	export MAKEOPTS EXTRA_EMAKE EXTRA_ECONF
 	export FEATURES
 	FlagSetFlags
