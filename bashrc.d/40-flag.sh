@@ -2,7 +2,7 @@
 # (C) Martin V\"ath <martin@mvath.de>
 
 FlagEval() {
-	case "${-}" in
+	case ${-} in
 	*f*)	eval "${*}";;
 	*)	set -f
 		eval "${*}"
@@ -12,35 +12,35 @@ FlagEval() {
 
 FlagAdd() {
 	local addres addf addvar
-	addvar="${1}"
+	addvar=${1}
 	shift
-	eval "addres=\"\$${addvar}\""
+	eval "addres=\${${addvar}}"
 	if [ -z "${addres}" ]
-	then	eval "${addvar}=\"\${*}\""
+	then	eval "${addvar}=\${*}"
 		return
 	fi
 	for addf
 	do	[ -n "${addf}" ] || continue
-		case "${addres}" in
+		case ${addres} in
 		*" ${addf} "*|*" ${addf}"|"${addf} "*|"${addf}")
 			continue
 		;;
 		esac
-		addres="${addres} ${addf}"
+		addres=${addres}${addres:+ }${addf}
 	done
-	eval "${addvar}=\"\${addres}\""
+	eval "${addvar}=\${addres}"
 }
 
 FlagSub() {
 	local subres subpat subf subvar sublist
-	subvar="${1}"
+	subvar=${1}
 	shift
 	subres=''
-	eval "sublist=\"\$${subvar}\""
+	eval "sublist=\${${subvar}}"
 	for subf in ${sublist}
 	do	for subpat
 		do	[ -n "${subpat}" ] || continue
-			case "${subf}" in
+			case ${subf} in
 			${subpat})
 				subf=''
 				break
@@ -50,27 +50,27 @@ FlagSub() {
 		[ -n "${subf}" ] || continue
 		if [ -n "${subres}" ]
 		then	subres="${subres} ${subf}"
-		else		subres="${subf}"
+		else		subres=${subf}
 		fi
 	done
-	eval "${subvar}=\"\${subres}\""
+	eval "${subvar}=\${subres}"
 }
 
 FlagReplace() {
 	local repres repf repcurr repvar reppat repfound
-	repvar="${1}"
+	repvar=${1}
 	shift
-	eval "repf=\"\$${repvar}\""
-	reppat="${1}"
+	eval "repf=\${${repvar}}"
+	reppat=${1}
 	shift
 	if [ -z "${repf}" ]
-	then	eval "${repvar}=\"\${*}\""
+	then	eval "${repvar}=\${*}"
 		return
 	fi
 	repres=''
 	repfound=:
 	for repcurr in ${repf}
-	do	case "${repcurr}" in
+	do	case ${repcurr} in
 		${reppat})
 			${repfound} && FlagAdd repres "${@}"
 			repfound=false
@@ -79,18 +79,18 @@ FlagReplace() {
 		esac
 		if [ -n "${repres}" ]
 		then	repres="${repres} ${repcurr}"
-		else	repres="${repcurr}"
+		else	repres=${repcurr}
 		fi
 	done
 	${repfound} && FlagAdd repres "${@}"
-	eval "${repvar}=\"\${repres}\""
+	eval "${repvar}=\${repres}"
 }
 
 FlagSet() {
 	local setvar
-	setvar="${1}"
+	setvar=${1}
 	shift
-	eval "${setvar}=\"\${*}\""
+	eval "${setvar}=\${*}"
 }
 
 FlagAddCFlags() {
@@ -118,7 +118,7 @@ FlagReplaceCFlags() {
 
 FlagSetallcflags() {
 	FlagSet CFLAGS "${@}"
-	CXXFLAGS="${CFLAGS}"
+	CXXFLAGS=${CFLAGS}
 	CPPFLAGS=''
 	OPTCFLAGS=''
 	OPTCXXFLAGS=''
@@ -148,7 +148,7 @@ FlagSetAllFlags() {
 }
 
 FlagAthlon() {
-	FlagSubCFlags -march=*
+	FlagSubCFlags -march='*'
 	FlagAddCFlags -march=athlon-4
 	test -x "/usr/bin/x86_64-pc-linux-gnu-gcc32" && \
 		export CC=x86_64-pc-linux-gnu-gcc32
@@ -159,26 +159,26 @@ FlagAthlon() {
 FlagExecute() {
 	local ex exy excurr
 	for excurr
-	do	case "${excurr}" in
+	do	case ${excurr} in
 		'#'*)
 			return
 		;;
 		'!'*)
 			[ "${HOSTTYPE}" = 'i686' ] || continue
-			ex="${excurr#?}"
+			ex=${excurr#?}
 		;;
 		'~'*)
 			[ "${HOSTTYPE}" = 'x86_64' ] || continue
-			ex="${excurr#?}"
+			ex=${excurr#?}
 		;;
 		*)
-			ex="${excurr}"
+			ex=${excurr}
 		;;
 		esac
-		case "${ex}" in
+		case ${ex} in
 		/*/*)
-			ex="${ex%/}"
-			ex="${ex#/}"
+			ex=${ex%/}
+			ex=${ex#/}
 			FlagEval FlagReplaceAllFlags "${ex%%/*}" "${ex#*/}"
 		;;
 		'-'*)
@@ -197,8 +197,8 @@ FlagExecute() {
 			FlagEval FlagSetallcflags "${ex#*=}"
 		;;
 		'C*FLAGS/=/'*/*)
-			ex="${ex%/}"
-			ex="${ex#*/=/}"
+			ex=${ex%/}
+			ex=${ex#*/=/}
 			FlagEval FlagReplaceCFlags "${ex%%/*}" "${ex#*/}"
 		;;
 		'*FLAGS-='*)
@@ -211,8 +211,8 @@ FlagExecute() {
 			FlagEval FlagSetAllFlags "${ex#*=}"
 		;;
 		'*FLAGS/=/'*/*)
-			ex="${ex%/}"
-			ex="${ex#*/=/}"
+			ex=${ex%/}
+			ex=${ex#*/=/}
 			FlagEval FlagReplaceAllFlags "${ex%%/*}" "${ex#*/}"
 		;;
 		'ATHLON32')
@@ -220,27 +220,27 @@ FlagExecute() {
 		;;
 		'NOC*OPT='*|'NOC*='*)
 			FlagEval FlagSet NOCOPT "${ex#*=}"
-			NOCXXOPT="${NOCOPT}"
-			NOCPPOPT="${NOCOPT}"
+			NOCXXOPT=${NOCOPT}
+			NOCPPOPT=${NOCOPT}
 		;;
 		'NO*OPT='*)
 			FlagEval FlagSet NOCOPT "${ex#*=}"
-			NOCXXOPT="${NOCOPT}"
-			NOCPPOPT="${NOCOPT}"
-			NOLDOPT="${NOCOPT}"
+			NOCXXOPT=${NOCOPT}
+			NOCPPOPT=${NOCOPT}
+			NOLDOPT=${NOCOPT}
 		;;
 		'NOLD*='*)
 			FlagEval FlagSet NOLDOPT "${ex#*=}"
-			NOLDADD="${NOLDOPT}"
+			NOLDADD=${NOLDOPT}
 		;;
 		'NO*'*)
 			FlagEval FlagSet NOCOPT "${ex#*=}"
-			NOCXXOPT="${NOCOPT}"
-			NOCPPOPT="${NOCOPT}"
-			NOLDOPT="${NOCOPT}"
-			NOLDADD="${NOCOPT}"
-			NOFFLAGS="${NOCOPT}"
-			NOFCFLAGS="${NOCOPT}"
+			NOCXXOPT=${NOCOPT}
+			NOCPPOPT=${NOCOPT}
+			NOLDOPT=${NOCOPT}
+			NOLDADD=${NOCOPT}
+			NOFFLAGS=${NOCOPT}
+			NOFCFLAGS=${NOCOPT}
 		;;
 		'SAFE')
 			NOCOPT=1
@@ -257,8 +257,8 @@ FlagExecute() {
 			FlagEval "${ex}"
 		;;
 		*'/=/'*'/'*)
-			ex="${ex%/}"
-			exy="${ex#*/=/}"
+			ex=${ex%/}
+			exy=${ex#*/=/}
 			FlagEval FlagReplace "${ex%%/=/*}" "${exy%%/*}" "${exy#*/}"
 		;;
 		*'-='*)
@@ -281,13 +281,13 @@ FlagScanLine() {
 	local add
 	[ ${#} -lt 2 ] && return
 	add=''
-	case "${1%::*}" in
+	case ${1%::*} in
 	*:*)	add=":${SLOT}";;
 	esac
-	case "${1}" in
+	case ${1} in
 	*::*)	add="${add}::${PORTAGE_REPO_NAME}";;
 	esac
-	case "${1}" in
+	case ${1} in
 	'#'*)
 		return
 	;;
@@ -317,7 +317,7 @@ FlagScanLine() {
 
 FlagScanFiles() {
 	local scanfile scanl oldifs
-	oldifs="${IFS}"
+	oldifs=${IFS}
 	for scanfile
 	do	[ -z "${scanfile}" ] && continue
 		test -r "${scanfile}" || continue
@@ -325,7 +325,7 @@ FlagScanFiles() {
 		do	FlagEval FlagScanLine "${scanl}"
 		done <"${scanfile}"
 	done
-	IFS="${oldifs}"
+	IFS=${oldifs}
 }
 
 FlagScanDir() {
@@ -333,21 +333,21 @@ FlagScanDir() {
 	scannewl='
 '
 	if test -d "${1}"
-	then	scantmp="$(cd / >/dev/null 2>&1
+	then	scantmp="`cd / >/dev/null 2>&1
 		find -L "${1}" \
 		'(' '(' -name '.*' -o -name '*~' ')' -prune ')' -o \
-			-type f -print)"
-		scantmp="${scantmp}${scannewl}"
+			-type f -print`"
+		scantmp=${scantmp}${scannewl}
 		while [ -n "${scantmp}" ]
 		do	FlagScanFiles "${scantmp%%"${scannewl}"*}"
-			scantmp="${scantmp#*"${scannewl}"}"
+			scantmp=${scantmp#*"${scannewl}"}
 		done
 	else	FlagScanFiles "${1}"
 	fi
-	scantmp="${FLAG_ADDLINES}${scannewl}"
+	scantmp=${FLAG_ADDLINES}${scannewl}
 	while [ -n "${scantmp}" ]
 	do	FlagEval FlagScanLine "${scantmp%%"${scannewl}"*}"
-		scantmp="${scantmp#*"${scannewl}"}"
+		scantmp=${scantmp#*"${scannewl}"}
 	done
 }
 
@@ -357,7 +357,7 @@ FlagSetFlags() {
 	FlagScanDir "${CONFIG_ROOT%/}/etc/portage/package.cflags"
 	FlagEval FlagExecute "${FLAG_ADD}"
 	[ -n "${NOLDOPT}" ]  || FlagAdd LDFLAGS ${OPTLDFLAGS}
-	[ -n "${NOCADD}" ]   || case "${LDFLAGS}" in
+	[ -n "${NOCADD}" ]   || case ${LDFLAGS} in
 		*'-flto'*) ld="${CFLAGS} ${CXXFLAGS}";;
 		esac
 	[ -n "${NOLDADD}" ]  || FlagAddCFlags ${LDFLAGS}
@@ -365,8 +365,8 @@ FlagSetFlags() {
 	[ -n "${NOCOPT}" ]   || FlagAdd CFLAGS ${OPTCFLAGS}
 	[ -n "${NOCXXOPT}" ] || FlagAdd CXXFLAGS ${OPTCXXFLAGS}
 	[ -n "${NOCPPOPT}" ] || FlagAdd CPPFLAGS ${OPTCPPFLAGS}
-	[ -n "${NOFFLAGS}" ] || FFLAGS="${CFLAGS}"
-	[ -n "${NOFCFLAGS}" ] || FCFLAGS="${FFLAGS}"
+	[ -n "${NOFFLAGS}" ] || FFLAGS=${CFLAGS}
+	[ -n "${NOFCFLAGS}" ] || FCFLAGS=${FFLAGS}
 	[ -n "${NOFILTER_CFLAGS}" ] || FlagSub CFLAGS \
 		-fvisibility-inlines-hidden \
 		-fno-enforce-eh-specs
@@ -401,7 +401,7 @@ FlagCheck() {
 
 FlagSetup() {
 	FlagCheck() {
-:
+	:
 }
 	export CFLAGS CXXFLAGS CPPFLAGS LDFLAGS FFLAGS FCFLAGS
 	export MAKEOPTS EXTRA_EMAKE EXTRA_ECONF

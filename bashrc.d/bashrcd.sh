@@ -2,7 +2,7 @@
 # (C) Martin V\"ath <martin@mvath.de>
 
 BashrcdEcho() {
-	case "${NOCOLOR}" in
+	case ${NOCOLOR} in
 	''|f*|F*|0*|n*|N*)
 		printf '\033[1;34m>\033[1;36m>\033[1;35m>\033[0m %s\n' "${@}";;
 	*)	printf '>>> %s\n' "${@}";;
@@ -17,13 +17,13 @@ BashrcdPhase() {
 	else	c=0
 	fi
 	eval "bashrcd_phases_c_${1}=\${c}
-	bashrcd_phases_${c}_${1}=\"\${2}\""
+	bashrcd_phases_${c}_${1}=\${2}"
 }
 
 BashrcdMain() {
 	local bashrcd
 	for bashrcd in "${CONFIG_ROOT%/}/etc/portage/bashrc.d/"*.sh
-	do	case "${bashrcd}" in
+	do	case ${bashrcd} in
 		*/bashrcd.sh)	continue;;
 		esac
 		test -r "${bashrcd}" || continue
@@ -33,8 +33,8 @@ BashrcdMain() {
 	unset -f BashrcdPhase
 BashrcdMain() {
 	local bashrcd_phase bashrcd_num bashrcd_max
-	[ ${#} -ne 0 ] && EBUILD_PHASE="${1}"
-	: ${ED:="${D%/}${EPREFIX%/}/"}
+	[ ${#} -ne 0 ] && EBUILD_PHASE=${1}
+	: ${ED:=${D%/}${EPREFIX%/}/}
 	[ -z "${BASHRCD_DEBUG}" ] || BashrcdEcho \
 		"${0}: ${*} (${#} args)" \
 		"EBUILD_PHASE=${EBUILD_PHASE}" \
