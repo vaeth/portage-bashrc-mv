@@ -3,7 +3,7 @@
 
 LocalePurge() {
 	local locale_config locale_list locale_cmd shell
-	BashTrue ${NOLOCALEPURGE} && return
+	BashrcdTrue ${NOLOCALEPURGE} && return
 	locale_config="${EROOT%/}/etc/locale.nopurge"
 	locale_list="${EROOT%/}/var/cache/localepurge/localelist"
 	test -f "${locale_config}" && test -f "${locale_list}" || return 0
