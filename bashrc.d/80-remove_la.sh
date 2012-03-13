@@ -3,13 +3,13 @@
 
 Remove_la() {
 	local shell
-	[ -n "${NOLAFILEREMOVE}" ] && return
+	BashTrue ${NOLAFILEREMOVE} && return
 # Some packages are known to rely on .la files (e.g. for building of plugins):
 	case "${CATEGORY}/${PN}" in
 	'media-libs/gst-plugins-base'|'media-libs/libsidplay')
 		return 0;;
 	esac
-	einfo "removing unneeded *.la files"
+	einfo 'removing unneeded *.la files'
 	shell=`command -v sh` || shell=''
 	: ${shell:=/bin/sh}
 	Dexport=${ED} find "${ED}" -name '*.la' '!' -name 'libltdl.la' \

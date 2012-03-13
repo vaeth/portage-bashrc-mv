@@ -15,16 +15,10 @@ FlagAdd() {
 	addvar=${1}
 	shift
 	eval "addres=\${${addvar}}"
-	if [ -z "${addres}" ]
-	then	eval "${addvar}=\${*}"
-		return
-	fi
 	for addf
-	do	[ -n "${addf}" ] || continue
-		case ${addres} in
-		*" ${addf} "*|*" ${addf}"|"${addf} "*|"${addf}")
-			continue
-		;;
+	do	case " ${addres}  " in
+		*[[:space:]]"${addf}"[[:space:]]*)
+			continue;;
 		esac
 		addres=${addres}${addres:+ }${addf}
 	done
@@ -43,15 +37,10 @@ FlagSub() {
 			case ${subf} in
 			${subpat})
 				subf=''
-				break
-			;;
+				break;;
 			esac
 		done
-		[ -n "${subf}" ] || continue
-		if [ -n "${subres}" ]
-		then	subres="${subres} ${subf}"
-		else		subres=${subf}
-		fi
+		[ -z "${subf}" ] || subres=${subres}${subres:+ }${subf}
 	done
 	eval "${subvar}=\${subres}"
 }
@@ -74,13 +63,9 @@ FlagReplace() {
 		${reppat})
 			${repfound} && FlagAdd repres "${@}"
 			repfound=false
-			continue
-		;;
+			continue;;
 		esac
-		if [ -n "${repres}" ]
-		then	repres="${repres} ${repcurr}"
-		else	repres=${repcurr}
-		fi
+		repres=${repres}${repres:+ }${repcurr}
 	done
 	${repfound} && FlagAdd repres "${@}"
 	eval "${repvar}=\${repres}"
@@ -161,78 +146,59 @@ FlagExecute() {
 	for excurr
 	do	case ${excurr} in
 		'#'*)
-			return
-		;;
+			return;;
 		'!'*)
 			[ "${HOSTTYPE}" = 'i686' ] || continue
-			ex=${excurr#?}
-		;;
+			ex=${excurr#?};;
 		'~'*)
 			[ "${HOSTTYPE}" = 'x86_64' ] || continue
-			ex=${excurr#?}
-		;;
+			ex=${excurr#?};;
 		*)
-			ex=${excurr}
-		;;
+			ex=${excurr};;
 		esac
 		case ${ex} in
 		/*/*)
 			ex=${ex%/}
 			ex=${ex#/}
-			FlagEval FlagReplaceAllFlags "${ex%%/*}" "${ex#*/}"
-		;;
+			FlagEval FlagReplaceAllFlags "${ex%%/*}" "${ex#*/}";;
 		'-'*)
-			FlagAddAllFlags "${ex}"
-		;;
+			FlagAddAllFlags "${ex}";;
 		'+'*)
-			FlagSubAllFlags "-${ex#+}"
-		;;
+			FlagSubAllFlags "-${ex#+}";;
 		'C*FLAGS-='*)
-			FlagEval FlagSubCFlags ${ex#*-=}
-		;;
+			FlagEval FlagSubCFlags ${ex#*-=};;
 		'C*FLAGS+='*)
-			FlagEval FlagAddCFlags ${ex#*+=}
-		;;
+			FlagEval FlagAddCFlags ${ex#*+=};;
 		'C*FLAGS='*)
-			FlagEval FlagSetallcflags "${ex#*=}"
-		;;
+			FlagEval FlagSetallcflags "${ex#*=}";;
 		'C*FLAGS/=/'*/*)
 			ex=${ex%/}
 			ex=${ex#*/=/}
-			FlagEval FlagReplaceCFlags "${ex%%/*}" "${ex#*/}"
-		;;
+			FlagEval FlagReplaceCFlags "${ex%%/*}" "${ex#*/}";;
 		'*FLAGS-='*)
-			FlagEval FlagSubAllFlags ${ex#*-=}
-		;;
+			FlagEval FlagSubAllFlags ${ex#*-=};;
 		'*FLAGS+='*)
-			FlagEval FlagAddAllFlags ${ex#*+=}
-		;;
+			FlagEval FlagAddAllFlags ${ex#*+=};;
 		'*FLAGS='*)
-			FlagEval FlagSetAllFlags "${ex#*=}"
-		;;
+			FlagEval FlagSetAllFlags "${ex#*=}";;
 		'*FLAGS/=/'*/*)
 			ex=${ex%/}
 			ex=${ex#*/=/}
-			FlagEval FlagReplaceAllFlags "${ex%%/*}" "${ex#*/}"
-		;;
+			FlagEval FlagReplaceAllFlags "${ex%%/*}" "${ex#*/}";;
 		'ATHLON32')
-			FlagAthlon
-		;;
+			FlagAthlon;;
 		'NOC*OPT='*|'NOC*='*)
 			FlagEval FlagSet NOCOPT "${ex#*=}"
 			NOCXXOPT=${NOCOPT}
-			NOCPPOPT=${NOCOPT}
-		;;
+			NOCPPOPT=${NOCOPT};;
 		'NO*OPT='*)
 			FlagEval FlagSet NOCOPT "${ex#*=}"
 			NOCXXOPT=${NOCOPT}
 			NOCPPOPT=${NOCOPT}
-			NOLDOPT=${NOCOPT}
-		;;
+			NOLDOPT=${NOCOPT};;
 		'NOLD*='*)
 			FlagEval FlagSet NOLDOPT "${ex#*=}"
-			NOLDADD=${NOLDOPT}
-		;;
+			NOLDADD=${NOLDOPT};;
 		'NO*'*)
 			FlagEval FlagSet NOCOPT "${ex#*=}"
 			NOCXXOPT=${NOCOPT}
@@ -240,8 +206,7 @@ FlagExecute() {
 			NOLDOPT=${NOCOPT}
 			NOLDADD=${NOCOPT}
 			NOFFLAGS=${NOCOPT}
-			NOFCFLAGS=${NOCOPT}
-		;;
+			NOFCFLAGS=${NOCOPT};;
 		'SAFE')
 			NOCOPT=1
 			NOCXXOPT=1
@@ -251,28 +216,21 @@ FlagExecute() {
 			NOCADD=1
 			LDFLAGS=''
 			CONFIG_SITE=''
-			NOLAFILEREMOVE=1
-		;;
+			NOLAFILEREMOVE=1;;
 		*' '*'='*)
-			FlagEval "${ex}"
-		;;
+			FlagEval "${ex}";;
 		*'/=/'*'/'*)
 			ex=${ex%/}
 			exy=${ex#*/=/}
-			FlagEval FlagReplace "${ex%%/=/*}" "${exy%%/*}" "${exy#*/}"
-		;;
+			FlagEval FlagReplace "${ex%%/=/*}" "${exy%%/*}" "${exy#*/}";;
 		*'-='*)
-			FlagEval FlagSub "${ex%%-=*}" ${ex#*-=}
-		;;
+			FlagEval FlagSub "${ex%%-=*}" ${ex#*-=};;
 		*'+='*)
-			FlagEval FlagAdd "${ex%%+=*}" ${ex#*+=}
-		;;
+			FlagEval FlagAdd "${ex%%+=*}" ${ex#*+=};;
 		*'='*)
-			FlagEval FlagSet "${ex%%=*}" "${ex#*=}"
-		;;
+			FlagEval FlagSet "${ex%%=*}" "${ex#*=}";;
 		*)
-			FlagEval "${ex}"
-		;;
+			FlagEval "${ex}";;
 		esac
 	done
 }
@@ -282,33 +240,29 @@ FlagScanLine() {
 	[ ${#} -lt 2 ] && return
 	add=''
 	case ${1%::*} in
-	*:*)	add=":${SLOT}";;
+	*':'*)	add=":${SLOT}";;
 	esac
 	case ${1} in
-	*::*)	add="${add}::${PORTAGE_REPO_NAME}";;
+	*'::'*)	add="${add}::${PORTAGE_REPO_NAME}";;
 	esac
 	case ${1} in
 	'#'*)
-		return
-	;;
+		return;;
 	'~'*)
 		case "~${CATEGORY}/${PN}-${PV}${add}" in
 		${1})	:;;
 		*)	return;;
-		esac
-	;;
+		esac;;
 	'='*)
 		case "=${CATEGORY}/${PF}${add}" in
 		${1})	:;;
 		*)	return;;
-		esac
-	;;
+		esac;;
 	*)
 		case "${CATEGORY}/${PN}${add}" in
 		${1})	:;;
 		*)	return;;
-		esac
-	;;
+		esac;;
 	esac
 	BashrcdEcho "${EBUILD_PHASE}${scanfile} -> ${1}"
 	shift
@@ -317,78 +271,79 @@ FlagScanLine() {
 
 FlagScanFiles() {
 	local scanfile scanl oldifs
-	oldifs=${IFS}
 	for scanfile
 	do	[ -z "${scanfile}" ] && continue
 		test -r "${scanfile}" || continue
-		while IFS='' read scanl
+		while IFS='' read -r scanl
 		do	FlagEval FlagScanLine "${scanl}"
 		done <"${scanfile}"
 	done
-	IFS=${oldifs}
 }
 
 FlagScanDir() {
-	local scantmp scannewl
-	scannewl='
-'
+	local scantmp scanifs=$IFS
 	if test -d "${1}"
-	then	scantmp="`cd / >/dev/null 2>&1
-		find -L "${1}" \
+	then	IFS='
+'
+		for scantmp in `find -L "${1}" \
 		'(' '(' -name '.*' -o -name '*~' ')' -prune ')' -o \
-			-type f -print`"
-		scantmp=${scantmp}${scannewl}
-		while [ -n "${scantmp}" ]
-		do	FlagScanFiles "${scantmp%%"${scannewl}"*}"
-			scantmp=${scantmp#*"${scannewl}"}
+			-type f -print`
+		do	IFS=${scanifs}
+			FlagScanFiles "${scantmp}"
 		done
 	else	FlagScanFiles "${1}"
 	fi
-	scantmp=${FLAG_ADDLINES}${scannewl}
-	while [ -n "${scantmp}" ]
-	do	FlagEval FlagScanLine "${scantmp%%"${scannewl}"*}"
-		scantmp=${scantmp#*"${scannewl}"}
+	IFS='
+'
+	for scantmp in ${FLAG_ADDLINES}
+	do	IFS=${scanifs}
+		FlagEval FlagScanLine "${scantmp}"
 	done
+	IFS=${scanifs}
 }
 
 FlagSetFlags() {
-	local ld
+	local ld i
 	ld=''
 	FlagScanDir "${CONFIG_ROOT%/}/etc/portage/package.cflags"
 	FlagEval FlagExecute "${FLAG_ADD}"
-	[ -n "${NOLDOPT}" ]  || FlagAdd LDFLAGS ${OPTLDFLAGS}
-	[ -n "${NOCADD}" ]   || case ${LDFLAGS} in
-		*'-flto'*) ld="${CFLAGS} ${CXXFLAGS}";;
+	BashrcdTrue ${NOLDOPT} || FlagAdd LDFLAGS ${OPTLDFLAGS}
+	BashrcdTrue ${NOCADD} || case " ${LDFLAGS}" in
+		*[[:space:]]'-flto'*)
+			ld="${CFLAGS} ${CXXFLAGS}";;
 		esac
-	[ -n "${NOLDADD}" ]  || FlagAddCFlags ${LDFLAGS}
+	BashrcdTrue ${NOLDADD} || FlagAddCFlags ${LDFLAGS}
 	FlagAdd ldadd ${ld}
-	[ -n "${NOCOPT}" ]   || FlagAdd CFLAGS ${OPTCFLAGS}
-	[ -n "${NOCXXOPT}" ] || FlagAdd CXXFLAGS ${OPTCXXFLAGS}
-	[ -n "${NOCPPOPT}" ] || FlagAdd CPPFLAGS ${OPTCPPFLAGS}
-	[ -n "${NOFFLAGS}" ] || FFLAGS=${CFLAGS}
-	[ -n "${NOFCFLAGS}" ] || FCFLAGS=${FFLAGS}
-	[ -n "${NOFILTER_CFLAGS}" ] || FlagSub CFLAGS \
+	BashrcdTrue ${NOCOPT} || FlagAdd CFLAGS ${OPTCFLAGS}
+	BashrcdTrue ${NOCXXOPT} || FlagAdd CXXFLAGS ${OPTCXXFLAGS}
+	BashrcdTrue ${NOCPPOPT} || FlagAdd CPPFLAGS ${OPTCPPFLAGS}
+	BashrcdTrue ${NOFFLAGS} || FFLAGS=${CFLAGS}
+	BashrcdTrue ${NOFCFLAGS} || FCFLAGS=${FFLAGS}
+	BashrcdTrue ${NOFILTER_CFLAGS} || FlagSub CFLAGS \
 		-fvisibility-inlines-hidden \
 		-fno-enforce-eh-specs
-	[ -n "${NOFILTER_FFLAGS}" ] || FlagSub FFLAGS \
+	BashrcdTrue ${NOFILTER_FFLAGS} || FlagSub FFLAGS \
 		-fdirectives-only \
 		-fvisibility-inlines-hidden \
 		-fno-enforce-eh-specs
-	[ -n "${NOFILTER_FCFLAGS}" ] || FlagSub FCFLAGS \
+	BashrcdTrue ${NOFILTER_FCFLAGS} || FlagSub FCFLAGS \
 		-fdirectives-only \
 		-fvisibility-inlines-hidden \
 		-fno-enforce-eh-specs
-	unset OPTCFLAGS OPTCXXFLAGS OPTLDFLAGS
+	unset OPTCFLAGS OPTCXXFLAGS OPTCPPFLAGS OPTLDFLAGS
 	unset NOLDOPT NOLDADD NOCOPT NOCXXOPT NOFFLAGS NOFCFLAGS
 	unset NOFILTER_CFLAGS NOFILTER_FFLAGS NOFILTER_FCFLAGS
 }
 
-FlagInfoOutput() {
+FlagInfoExport() {
 	local out
 	for out in FEATURES CFLAGS CXXFLAGS CPPFLAGS FFLAGS FCFLAGS LDFLAGS \
 		MAKEOPTS EXTRA_ECONF EXTRA_EMAKE
-	do	eval "[ -n \"\${${out}}\" ] && \
-			BashrcdEcho \"${out}='\${${out}}'\""
+	do	eval "if [ -n \"\${${out}}\" ]
+		then	export ${out}
+			BashrcdEcho \"${out}='\${${out}}'\"
+		else	unset ${out}
+		fi"
 	done
 }
 
@@ -403,11 +358,9 @@ FlagSetup() {
 	FlagCheck() {
 	:
 }
-	export CFLAGS CXXFLAGS CPPFLAGS LDFLAGS FFLAGS FCFLAGS
-	export MAKEOPTS EXTRA_EMAKE EXTRA_ECONF
-	export FEATURES
+-
 	FlagSetFlags
-	FlagInfoOutput
+	FlagInfoExport
 }
 
 BashrcdPhase compile FlagCheck

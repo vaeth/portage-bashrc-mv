@@ -52,7 +52,8 @@ and before the other actions for the ordinary phases are executed.
 The variable $EBUILD_PHASE contains the currently executed phase.
 
 You can find out which phases are called by portage by setting the variable
-$BASHCRD_DEBUG to a nonempty value.
+$BASHCRD_DEBUG to true (true is "true", "1", or ":", an empty value, "false"
+or "0" is false).
 
 Since there is global variable scope for which we must avoid collision,
 the following name conventions are used: All variables and function names
@@ -62,10 +63,12 @@ The variable $ED is also set in EAPI=0: This is to simplify writing of
 functions which work for all ebuilds without taking care of the EAPI
 in this respect.
 
-For convenience, there is also a function
+For convenience, there are also some functions provided:
+	BashrcdTrue ${variable}
+tests if ${variable} value is "true".
 	BashrcdEcho "output line 1" "output line 2" ...
-available which outputs the arguments into a separate line each,
-prefixed with >>> (the latter colorized unless NOCOLOR is set)
+outputs the arguments into a separate line each,
+prefixed with >>> (the latter colorized unless NOCOLOR is "true")
 
 
 For 2:
@@ -214,41 +217,41 @@ SAFE
 	CONFIG_SITE NOLAFILEREMOVE
 
 After all COMMANDs have been executed, some additional actions are taken.
-You can prevent this by setting the corresponding variables nonempty
+You can prevent this by setting the corresponding variables to false
 (either by a COMMAND or in the environment):
 
 NOLDOPT
-	If this variable is empty, then the OPTLDFLAGS will be added
+	If this variable is false, then the OPTLDFLAGS will be added
 	to the LDFLAGS
 NOCOPT
-	If this variable is empty, then the OPTCFLAGS will be added
+	If this variable is false, then the OPTCFLAGS will be added
 	to the CFLAGS
 NOCXXOPT
-	If this variable is empty, then the OPTCXXFLAGS will be added
+	If this variable is false, then the OPTCXXFLAGS will be added
 	to the CFLAGS
 NOCPPOPT
-	If this variable is empty, then the OPTCPPFLAGS will be added
+	If this variable is false, then the OPTCPPFLAGS will be added
 	to the CPPFLAGS
 NOLDADD
-	If this variable is empty, the LDFLAGS variable finally
+	If this variable is false, the LDFLAGS variable finally
 	calculated will be added to the CFLAGS and CXXFLAGS
 NOCADD
-	If this variable is empty and LDFLAGS contains -flto*, the
+	If this variable is false and LDFLAGS contains -flto*, the
 	CFLAGS variable finally calculated will be added to the LDFLAGS.
 NOFFLAGS
-	If this variable is empty, then the CFLAGS finally calculated
+	If this variable is false, then the CFLAGS finally calculated
 	will also be used as FFLAGS
 NOFCFLAGS
-	If this variable is empty, then the FFLAGS finally calculated
+	If this variable is false, then the FFLAGS finally calculated
 	will also be used as FCFLAGS
 NOFILTER_CFLAGS
-	If this variable is empty, then CFLAGS known to be forbidden
+	If this variable is false, then CFLAGS known to be forbidden
 	for C will be removed.
 NOFILTER_FFLAGS
-	If this variable is empty, then FFLAGS known to be forbidden
+	If this variable is false, then FFLAGS known to be forbidden
 	for fortran will be removed.
 NOFILTER_FCFLAGS
-	If this variable is empty, then FCFLAGS known to be
+	If this variable is false, then FCFLAGS known to be
 	forbidden for fortran will be removed.
 
 
@@ -325,7 +328,7 @@ This is done in /etc/portage/bashrc.d/*-remove_la.sh:
 
 If the variable
 	NOLAFILEREMOVE
-is empty, all those *.la files are deleted (before merging to the filesystem)
+is false, all those *.la files are deleted (before merging to the filesystem)
 which appear to be unnecessary at runtime.
 It is recommended anyway to use >=portage-2.2_rc68 with FEATURES=fixlafiles.
 
@@ -337,7 +340,7 @@ This is done in /etc/portage/bashrc.d/*-localepurge.sh:
 
 If app-admin/localepurge is installed and configured and the variable
 	NOLOCALEPURGE
-is empty, an action similar to localepurge is performed which is similar
+is false, an action similar to localepurge is performed which is similar
 to the localepurge command but happens before installation
 (so that the removed files are not recorded in portage's database).
 
