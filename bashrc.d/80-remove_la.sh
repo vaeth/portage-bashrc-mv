@@ -10,7 +10,7 @@ Remove_la() {
 		return 0;;
 	esac
 	einfo 'removing unneeded *.la files'
-	shell=`command -v sh` || shell=''
+	shell=`command -v sh` || shell=
 	: ${shell:=/bin/sh}
 	Dexport=${ED} find "${ED}" -name '*.la' '!' -name 'libltdl.la' \
 		-exec "${shell}" -c "for i

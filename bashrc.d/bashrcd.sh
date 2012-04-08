@@ -16,7 +16,7 @@ BashrcdEcho() {
 
 BashrcdPhase() {
 	local c
-	eval "c=\${bashrcd_phases_c_${1}}"
+	eval c=\${bashrcd_phases_c_${1}}
 	if [ -n "${c}" ]
 	then	c=$(( ${c} + 1 ))
 	else	c=0
@@ -57,11 +57,11 @@ BashrcdMain() {
 		"D=${D}" \
 		"ED=${ED}"
 	for bashrcd_phase in all "${EBUILD_PHASE}"
-	do	eval "bashrcd_max=\${bashrcd_phases_c_${bashrcd_phase}}"
+	do	eval bashrcd_max=\${bashrcd_phases_c_${bashrcd_phase}}
 		[ -z "${bashrcd_max}" ] && continue
 		bashrcd_num=0
 		while {
-			eval "eval \"\\\${bashrcd_phases_${bashrcd_num}_${bashrcd_phase}}\""
+			eval eval \"\\\${bashrcd_phases_${bashrcd_num}_${bashrcd_phase}}\"
 			[ ${bashrcd_num} -ne ${bashrcd_max} ]
 		}
 		do	bashrcd_num=$(( ${bashrcd_num} + 1 ))

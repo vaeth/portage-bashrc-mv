@@ -14,7 +14,7 @@ FlagAdd() {
 	local addres addf addvar
 	addvar=${1}
 	shift
-	eval "addres=\${${addvar}}"
+	eval addres=\${${addvar}}
 	for addf
 	do	case " ${addres}  " in
 		*[[:space:]]"${addf}"[[:space:]]*)
@@ -22,41 +22,41 @@ FlagAdd() {
 		esac
 		addres=${addres}${addres:+ }${addf}
 	done
-	eval "${addvar}=\${addres}"
+	eval ${addvar}=\${addres}
 }
 
 FlagSub() {
 	local subres subpat subf subvar sublist
 	subvar=${1}
 	shift
-	subres=''
-	eval "sublist=\${${subvar}}"
+	subres=
+	eval sublist=\${${subvar}}
 	for subf in ${sublist}
 	do	for subpat
 		do	[ -n "${subpat}" ] || continue
 			case ${subf} in
 			${subpat})
-				subf=''
+				subf=
 				break;;
 			esac
 		done
 		[ -z "${subf}" ] || subres=${subres}${subres:+ }${subf}
 	done
-	eval "${subvar}=\${subres}"
+	eval ${subvar}=\${subres}
 }
 
 FlagReplace() {
 	local repres repf repcurr repvar reppat repfound
 	repvar=${1}
 	shift
-	eval "repf=\${${repvar}}"
+	eval repf=\${${repvar}}
 	reppat=${1}
 	shift
 	if [ -z "${repf}" ]
-	then	eval "${repvar}=\${*}"
+	then	eval ${repvar}=\${*}
 		return
 	fi
-	repres=''
+	repres=
 	repfound=:
 	for repcurr in ${repf}
 	do	case ${repcurr} in
@@ -68,14 +68,14 @@ FlagReplace() {
 		repres=${repres}${repres:+ }${repcurr}
 	done
 	${repfound} && FlagAdd repres "${@}"
-	eval "${repvar}=\${repres}"
+	eval ${repvar}=\${repres}
 }
 
 FlagSet() {
 	local setvar
 	setvar=${1}
 	shift
-	eval "${setvar}=\${*}"
+	eval ${setvar}=\${*}
 }
 
 FlagAddCFlags() {
@@ -104,10 +104,10 @@ FlagReplaceCFlags() {
 FlagSetallcflags() {
 	FlagSet CFLAGS "${@}"
 	CXXFLAGS=${CFLAGS}
-	CPPFLAGS=''
-	OPTCFLAGS=''
-	OPTCXXFLAGS=''
-	OPTCPPFLAGS=''
+	CPPFLAGS=
+	OPTCFLAGS=
+	OPTCXXFLAGS=
+	OPTCPPFLAGS=
 }
 
 FlagAddAllFlags() {
@@ -128,8 +128,8 @@ FlagReplaceAllFlags() {
 
 FlagSetAllFlags() {
 	FlagSetallcflags "${@}"
-	LDFLAGS=''
-	OPTLDFLAGS=''
+	LDFLAGS=
+	OPTLDFLAGS=
 }
 
 FlagAthlon() {
@@ -214,8 +214,8 @@ FlagExecute() {
 			NOLDOPT=1
 			NOLDADD=1
 			NOCADD=1
-			LDFLAGS=''
-			CONFIG_SITE=''
+			LDFLAGS=
+			CONFIG_SITE=
 			NOLAFILEREMOVE=1;;
 		*' '*'='*)
 			FlagEval "${ex}";;
@@ -238,7 +238,7 @@ FlagExecute() {
 FlagScanLine() {
 	local add
 	[ ${#} -lt 2 ] && return
-	add=''
+	add=
 	case ${1%::*} in
 	*':'*)	add=":${SLOT}";;
 	esac
@@ -274,7 +274,7 @@ FlagScanFiles() {
 	for scanfile
 	do	[ -z "${scanfile}" ] && continue
 		test -r "${scanfile}" || continue
-		while IFS='' read -r scanl
+		while IFS= read -r scanl
 		do	FlagEval FlagScanLine "${scanl}"
 		done <"${scanfile}"
 	done
@@ -304,7 +304,7 @@ FlagScanDir() {
 
 FlagSetFlags() {
 	local ld i
-	ld=''
+	ld=
 	FlagScanDir "${CONFIG_ROOT%/}/etc/portage/package.cflags"
 	FlagEval FlagExecute "${FLAG_ADD}"
 	BashrcdTrue ${NOLDOPT} || FlagAdd LDFLAGS ${OPTLDFLAGS}

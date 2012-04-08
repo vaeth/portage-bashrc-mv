@@ -19,12 +19,12 @@ fi
 done
 done'
 	export locale_list
-	shell=`command -v sh` || shell=''
+	shell=`command -v sh` || shell=
 	: ${shell:=/bin/sh}
 	find "${ED}" -name locale -type d -exec "${shell}" -c "k='/LC_MESSAGES'
 ${locale_cmd}" sh '{}' '+'
 	if grep -xq '^MANDELETE' -- "${locale_config}"
-	then	find "${ED}" -name man -type d -exec "${shell}" -c "k=''
+	then	find "${ED}" -name man -type d -exec "${shell}" -c "k=
 ${locale_cmd}" sh '{}' '+'
 	fi
 	unset locale_list
