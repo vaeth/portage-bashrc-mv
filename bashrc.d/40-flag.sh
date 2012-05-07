@@ -33,14 +33,14 @@ FlagSub() {
 	eval sublist=\${${subvar}}
 	for subf in ${sublist}
 	do	for subpat
-		do	[ -n "${subpat}" ] || continue
+		do	[ -n "${subpat:++}" ] || continue
 			case ${subf} in
 			${subpat})
 				subf=
 				break;;
 			esac
 		done
-		[ -z "${subf}" ] || subres=${subres}${subres:+ }${subf}
+		[ -z "${subf:++}" ] || subres=${subres}${subres:+ }${subf}
 	done
 	eval ${subvar}=\${subres}
 }
@@ -52,7 +52,7 @@ FlagReplace() {
 	eval repf=\${${repvar}}
 	reppat=${1}
 	shift
-	if [ -z "${repf}" ]
+	if [ -z "${repf:++}" ]
 	then	eval ${repvar}=\${*}
 		return
 	fi
@@ -272,7 +272,7 @@ FlagScanLine() {
 FlagScanFiles() {
 	local scanfile scanl oldifs
 	for scanfile
-	do	[ -z "${scanfile}" ] && continue
+	do	[ -z "${scanfile:++}" ] && continue
 		test -r "${scanfile}" || continue
 		while IFS= read -r scanl
 		do	FlagEval FlagScanLine "${scanl}"
@@ -339,7 +339,7 @@ FlagInfoExport() {
 	local out
 	for out in FEATURES CFLAGS CXXFLAGS CPPFLAGS FFLAGS FCFLAGS LDFLAGS \
 		MAKEOPTS EXTRA_ECONF EXTRA_EMAKE
-	do	eval "if [ -n \"\${${out}}\" ]
+	do	eval "if [ -n \"\${${out}:++}\" ]
 		then	export ${out}
 			BashrcdEcho \"${out}='\${${out}}'\"
 		else	unset ${out}

@@ -9,7 +9,7 @@ LocalePurge() {
 	test -f "${locale_config}" && test -f "${locale_list}" || return 0
 	grep -xq '^NEEDSCONFIGFIRST' -- "${locale_config}" && return
 	locale_list=`grep -xvf ${locale_config} -- "${locale_list}"`
-	[ -z "${locale_list}" ] && return
+	[ -z "${locale_list:++}" ] && return
 	einfo "removing undesired locales"
 	locale_cmd='for d
 do	for l in ${locale_list}
