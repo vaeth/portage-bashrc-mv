@@ -345,6 +345,9 @@ FlagInfoExport() {
 		else	unset ${out}
 		fi"
 	done
+	out=`gcc --version | head -n1` || out=
+	BashrcdEcho "${out:-cannot determine gcc version}"
+	BashrcdEcho "`uname -a`"
 }
 
 FlagCheck() {
