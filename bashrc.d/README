@@ -67,8 +67,8 @@ For convenience, there are also some functions provided:
 	BashrcdTrue ${variable}
 tests if ${variable} value is "true".
 	BashrcdEcho "output line 1" "output line 2" ...
-outputs the arguments into a separate line each,
-prefixed with >>> (the latter colorized unless NOCOLOR is "true")
+outputs the arguments into a separate line each
+(specially marked and colorized unless NOCOLOR is "true")
 
 
 For 2:
