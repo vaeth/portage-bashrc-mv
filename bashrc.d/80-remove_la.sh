@@ -15,7 +15,7 @@ Remove_la() {
 	Dexport=${ED} find "${ED}" -name '*.la' '!' -name 'libltdl.la' \
 		-exec "${shell}" -c "for i
 	do	if grep -q -- '^shouldnotlink=no\$' \"\${i}\"
-		then	printf '\\t%s\\n' \"\${i#\"\${Dexport}\"}\"
+		then	printf '\\t%s\\n' \"\${i#\${Dexport}}\"
 			rm -- \"\${i}\" || echo 'removing failed!'
 		fi
 	done" sh '{}' '+'

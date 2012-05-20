@@ -2,15 +2,15 @@
 # (C) Martin V\"ath <martin@mvath.de>
 
 BashrcdTrue() {
-	case ${1:-0} in
-	[nNf]*|[oO][fF]*|0)	return 1;;
+	case ${1:-n} in
+	[nNfF]*|[oO][fF]*|0)	return 1;;
 	esac
 }
 
 BashrcdEcho() {
 	if BashrcdTrue ${NOCOLOR}
-	then	printf '>>> %s\n' "${@}"
-	else	printf '\033[1;34m>\033[1;36m>\033[1;35m>\033[0m %s\n' "${@}"
+	then	printf ' * %s\n' "${@}"
+	else	printf ' \033[1;35m*\033[0m %s\n' "${@}"
 	fi
 }
 

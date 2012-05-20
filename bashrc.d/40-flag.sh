@@ -135,9 +135,9 @@ FlagSetAllFlags() {
 FlagAthlon() {
 	FlagSubCFlags -march='*'
 	FlagAddCFlags -march=athlon-4
-	test -x "/usr/bin/x86_64-pc-linux-gnu-gcc32" && \
+	command -v x86_64-pc-linux-gnu-gcc32 >/dev/null 2>&1 && \
 		export CC=x86_64-pc-linux-gnu-gcc32
-	test -x "/usr/bin/x86_64-pc-linux-gnu-g++32" && \
+	command -v x86_64-pc-linux-gnu-g++32 >/dev/null 2>&1 && \
 		export CXX=x86_64-pc-linux-gnu-g++32
 }
 
@@ -264,8 +264,9 @@ FlagScanLine() {
 		*)	return;;
 		esac;;
 	esac
-	BashrcdEcho "${EBUILD_PHASE}${scanfile} -> ${1}"
+	add=${1}
 	shift
+	BashrcdEcho "${scanfile} -> ${add}: ${*}"
 	FlagExecute "${@}"
 }
 
@@ -281,7 +282,8 @@ FlagScanFiles() {
 }
 
 FlagScanDir() {
-	local scantmp scanifs=$IFS
+	local scantmp scanifs scanfile
+	scanifs=${IFS}
 	if test -d "${1}"
 	then	IFS='
 '
@@ -293,6 +295,7 @@ FlagScanDir() {
 		done
 	else	FlagScanFiles "${1}"
 	fi
+	scanfile='FLAG_ADDLINES'
 	IFS='
 '
 	for scantmp in ${FLAG_ADDLINES}
@@ -306,7 +309,10 @@ FlagSetFlags() {
 	local ld i
 	ld=
 	FlagScanDir "${CONFIG_ROOT%/}/etc/portage/package.cflags"
-	FlagEval FlagExecute "${FLAG_ADD}"
+	if [ -n "${FLAG_ADD}" ]
+	then	BashrcdEcho "FLAG_ADD: ${FLAG_ADD}"
+		FlagEval FlagExecute "${FLAG_ADD}"
+	fi
 	BashrcdTrue ${NOLDOPT} || FlagAdd LDFLAGS ${OPTLDFLAGS}
 	BashrcdTrue ${NOCADD} || case " ${LDFLAGS}" in
 		*[[:space:]]'-flto'*)
@@ -345,7 +351,7 @@ FlagInfoExport() {
 		else	unset ${out}
 		fi"
 	done
-	out=`gcc --version | head -n1` || out=
+	out=`gcc --version | head -n 1` || out=
 	BashrcdEcho "${out:-cannot determine gcc version}"
 	BashrcdEcho "`uname -a`"
 }
