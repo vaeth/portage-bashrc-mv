@@ -66,10 +66,11 @@ in this respect.
 For convenience, there are also some functions provided:
 	BashrcdTrue ${variable}
 tests if ${variable} value is "true".
+	BashrcdLog "output line 1" "output line 2" ...
 	BashrcdEcho "output line 1" "output line 2" ...
-outputs the arguments into a separate line each
-(specially marked and colorized unless NOCOLOR is "true")
-
+is as "elog" or "einfo", but prints each argument in a separate line.
+Moreover, if BASHRCDNOLOG or BASHRCDLOG is true, the output is like
+"einfo" or "elog", respectively.
 
 For 2:
 

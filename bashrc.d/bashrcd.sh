@@ -7,11 +7,20 @@ BashrcdTrue() {
 	esac
 }
 
+BashrcdLog() {
+	local i m=elog
+	BashrcdTrue "${BASHRCDNOLOG}" && m=einfo
+	for i
+	do	${m} "${i}"
+	done
+}
+
 BashrcdEcho() {
-	if BashrcdTrue ${NOCOLOR}
-	then	printf ' * %s\n' "${@}"
-	else	printf ' \033[1;35m*\033[0m %s\n' "${@}"
-	fi
+	local i m=einfo
+	BashrcdTrue "${BASHRCDLOG}" && m=elog
+	for i
+	do	${m} "${i}"
+	done
 }
 
 BashrcdPhase() {
