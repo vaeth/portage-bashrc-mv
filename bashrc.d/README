@@ -90,30 +90,26 @@ You temporarily add lines to the above file by putting them into the variable
 The format of the lines (in the above file(s) or FLAG_ADDLINES) is as follows:
 
 Comment lines contain only space or start with "#"
-all other lines should have one of the following two forms:
+all other lines should have the following form:
 
-category/package                DATA  (matches all versions)
-~category/package-version       DATA  (matches all revisions)
-=category/package-version[-rev] DATA  (matches only precise revision)
+PACKAGEMASK DATA
 
-Optionally, you can also append :SLOT and/or ::REPOSITORY to the first item
-to restrict the matches.
+If >=app-portage/eix-0.26 (with the "masked-packages" tool) is installed,
+then PACKAGEMASK can have the form as in /etc/portage/package.mask
+(see e.g. man 5 portage). The DATA applies to the matching packages.
+For instance, PACKAGEMASK can be some of
+foo/bar       (DATA applies to all versions of the package)
+=foo/bar-1    (DATA applies only to version 1)
+>foo/bar-1    (DATA applies only to newer versions than 1)
+~foo/bar-1    (DATA applies to all revisions of version 1)
+=foo/bar-1*   (DATA applies also to e.g. version 1.1 but not to version 2)
+foo/bar:x     (DATA applies only to slot x)
+*/*::gentoo   (DATA applies only for packages from the gentoo repository)
 
-More precisely, the first symbol decides the type to match, and the rest
-of the first word is considered to be a pattern. For instance,
-
-*            DATA (will match everything:       any category/package matches)
-~foo/bar-*   DATA (is the same as foo/bar-*     any version matches)
-=foo/bar-1-* DATA (is the same as ~foo/bar-1-*  any revision matches)
-foo/bar:x::y DATA matches SLOT x from repository y
-*::y*        DATA matches everything from repositories starting with y
-
-i.e. in comparison with portage's configuration files "<", "<=", ">", ">="
-are currently not supported, and you *must* specify the category.
-However, "~" and "=" is supported.
-Note also that the pattern globs * and ? act as pure string globs and can
-also be used in SLOT and repository names; this is slightly different than
-how portage usually treats its configuration files.
+If you do not have the mentioned "masked-packages" tool installed,
+a heuristic is used to emulate the above behaviour, but e.g.
+the operators '<' '>' '<=' '>=' are not supported and
+wildcards are handled as "text" wildcards.
 
 All matching lines take effect, i.e. you can e.g. "accumulate" DATA.
 

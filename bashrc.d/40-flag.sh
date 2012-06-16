@@ -235,10 +235,13 @@ FlagExecute() {
 	done
 }
 
-FlagScanLine() {
-	local add
-	[ ${#} -lt 2 ] && return
-	add=
+FlagMask() {
+	if command -v masked-packages >/dev/null 2>&1
+	then	FlagMask() {
+	masked-packages -qm "${1}" -- "${CATEGORY}/${PF}:${SLOT}"${PORTAGE_REPO_NAME:+::}${PORTAGE_REPO_NAME}
+}
+	else	FlagMask() {
+	local add=
 	case ${1%::*} in
 	*':'*)	add=":${SLOT}";;
 	esac
@@ -246,27 +249,35 @@ FlagScanLine() {
 	*'::'*)	add="${add}::${PORTAGE_REPO_NAME}";;
 	esac
 	case ${1} in
-	'#'*)
-		return;;
 	'~'*)
 		case "~${CATEGORY}/${PN}-${PV}${add}" in
-		${1})	:;;
-		*)	return;;
+		${1})	return;;
 		esac;;
 	'='*)
 		case "=${CATEGORY}/${PF}${add}" in
-		${1})	:;;
-		*)	return;;
+		${1})	return;;
 		esac;;
 	*)
 		case "${CATEGORY}/${PN}${add}" in
-		${1})	:;;
-		*)	return;;
+		${1})	return;;
 		esac;;
 	esac
-	add=${1}
+	return 1
+}
+	fi
+	FlagMask
+}
+
+FlagScanLine() {
+	local match
+	[ ${#} -lt 2 ] && return
+	case ${1:-#} in
+	'#'*)	return 0;
+	esac
+	FlagMask "${1}" || return 0
+	match=${1}
 	shift
-	BashrcdEcho "${scanfile} -> ${add}: ${*}"
+	BashrcdEcho "${scanfile} -> ${match}: ${*}"
 	FlagExecute "${@}"
 }
 
