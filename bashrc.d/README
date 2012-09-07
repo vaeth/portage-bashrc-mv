@@ -20,6 +20,8 @@ for e.g. modifying CFLAGS.
 (c) Support for removing undesired locales before installation
 (similar to app-admin/localepurge, but before installation).
 
+(d) Support for CCACHE_* variables.
+
 
 For 1:
 
@@ -342,6 +344,33 @@ to the localepurge command but happens before installation
 (so that the removed files are not recorded in portage's database).
 
 Note that the variable NOLOCALEPURGE can be set per package by using (a).
+
+(d) Support for CCACHE_* variables:
+
+This sets the following defaults for CCACHE_* variables
+(it is explained after this list how to override these defaults):
+
+CCACHE_BASEDIR=${PORTAGE_TMPDIR}/portage"
+(This saves lot of time without risk unless you have special debugging needs)
+
+CCACHE_SLOPPINESS='file_macro,time_macros,include_file_mtime'
+(This saves also a lot of time, and problems with it are very unlikely)
+
+CCACHE_COMPRESS=true
+(This is reasonable unless you reserve an incredible amount of cache. Moreover,
+it can speed up things; certainly on large machines, but sometimes even on
+slow machines.)
+
+If you use a non-GNU compiler (which is assumed if and only if CC is defined):
+CACHE_CPP2=true
+(The reason is that compilers like clang have problems without this setting.)
+
+If you do not agree with the defaults chosen above just set these variables
+to some different value. To avoid that the variable is set, define them to the
+empty value. Thus, e.g. to avoid compression, set in /etc/portage/make.conf:
+CCACHE_COMPRESS=""
+(Note that CCACHE_COMPRESS=false would not have the desired effect, since
+ccache just tests whether the variable is defined.)
 
 
 

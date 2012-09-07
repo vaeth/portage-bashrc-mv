@@ -375,8 +375,8 @@ FlagCheck() {
 }
 
 FlagSetup() {
-	FlagCheck() {
-	:
+FlagCheck() {
+:
 }
 	FlagSetFlags
 	FlagInfoExport

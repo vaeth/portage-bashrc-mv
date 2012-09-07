@@ -20,6 +20,8 @@ for e.g. modifying CFLAGS.
 (c) Support for removing undesired locales before installation
 (similar to app-admin/localepurge, but before installation).
 
+(d) Support for CCACHE_* variables.
+
 
 See bashrc.d/README for more details.
 
