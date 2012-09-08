@@ -237,10 +237,12 @@ FlagExecute() {
 
 FlagMask() {
 	if command -v masked-packages >/dev/null 2>&1
-	then	FlagMask() {
+	then
+FlagMask() {
 	masked-packages -qm "${1}" -- "${CATEGORY}/${PF}:${SLOT}"${PORTAGE_REPO_NAME:+::}${PORTAGE_REPO_NAME}
 }
-	else	FlagMask() {
+	else
+FlagMask() {
 	local add=
 	case ${1%::*} in
 	*':'*)	add=":${SLOT}";;
@@ -316,10 +318,32 @@ FlagScanDir() {
 	IFS=${scanifs}
 }
 
+FlagSetUseNonGNU() {
+	[ -n "${CC}${CXX}" ] && return
+	case " ${IUSE} " in
+	*" clang "*)
+		use clang
+		return;;
+	esac
+	return 1
+}
+
+FlagSetNonGNU() {
+	: ${NOLDADD:=1}
+	FlagSubAllFlags '-fno-ident' '-fweb' '-frename-registers' \
+		'-fpredictive-commoning' '-fdirectives*' \
+		'-funsafe-loop*' '-ftree-vectorize*' '-fgcse*' '-ftree*' \
+		'-fnothrow-opt' '-fno-enforce-eh-specs' \
+		'-fgraphite*' '-floop*' \
+		'-flto*' '-fuse-linker-plugin' '-fwhole-program'
+}
+
 FlagSetFlags() {
 	local ld i
 	ld=
 	FlagScanDir "${CONFIG_ROOT%/}/etc/portage/package.cflags"
+	[ -z "${USE_NONGNU++}" ] && FlagSetUseNonGNU && USE_NONGNU=1
+	BashrcdTrue "${USE_NONGNU}" && FlagSetNonGNU
 	if [ -n "${FLAG_ADD}" ]
 	then	BashrcdEcho "FLAG_ADD: ${FLAG_ADD}"
 		FlagEval FlagExecute "${FLAG_ADD}"
@@ -355,7 +379,7 @@ FlagSetFlags() {
 FlagInfoExport() {
 	local out
 	for out in FEATURES CFLAGS CXXFLAGS CPPFLAGS FFLAGS FCFLAGS LDFLAGS \
-		MAKEOPTS EXTRA_ECONF EXTRA_EMAKE
+		MAKEOPTS EXTRA_ECONF EXTRA_EMAKE USE_NONGNU
 	do	eval "if [ -n \"\${${out}:++}\" ]
 		then	export ${out}
 			BashrcdEcho \"${out}='\${${out}}'\"

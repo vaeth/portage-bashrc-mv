@@ -14,6 +14,7 @@ in which you can easily execute tasks or modify variables like CFLAGS
 on a per-package basis.
 This is similar to using /etc/portage/env but has a more convenient syntax
 for e.g. modifying CFLAGS.
+There is also a special flag filtering for non-GNU compilers (mainly clang).
 
 (b) Support for removing undesired .la files before installation
 

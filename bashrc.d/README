@@ -14,6 +14,7 @@ in which you can easily execute tasks or modify variables like CFLAGS
 on a per-package basis.
 This is similar to using /etc/portage/env but has a more convenient syntax
 for e.g. modifying CFLAGS.
+There is also a special flag filtering for non-GNU compilers (mainly clang).
 
 (b) Support for removing undesired .la files before installation
 
@@ -219,6 +220,14 @@ After all COMMANDs have been executed, some additional actions are taken.
 You can prevent this by setting the corresponding variables to false
 (either by a COMMAND or in the environment):
 
+USE_NONGNU
+	If this variable is true, it is assumed that you use a Non-GNU
+	compiler, presumably sys-devel/clang.
+	(If you have not explicitly defined USE_NONGNU, the value of this
+	variable is calculated by some heuristics described later).
+	If this variable is true, also NOLDADD (see below) defaults to true
+	(unless you have explicitly defined NOLDADD), and some flags
+	are filtered which are known to be unsupported by sys-devel/clang.
 NOLDOPT
 	If this variable is false, then the OPTLDFLAGS will be added
 	to the LDFLAGS
@@ -322,6 +331,18 @@ FEATURES="-ccache"
 In a similar manner, you should handle modifications of other FEATURES.
 
 
+Support for Non-GNU compilers:
+
+If you have set CC or CXX, or if there is an active USE=clang (e.g. in eix),
+it is assumed that you will use a non-GNU compiler, probably sys-devel/clang.
+In this case, the variable USE_NONGNU=1 is exported.
+You can avoid this by setting this variable explicitly to the empty value,
+e.g. in make.conf or package.cflags.
+If USE_NONGNU is active, some flags are filtered which give only errors or
+warnings with clang (more details were described above).
+Moreover, in this case also CCACHE_CPP2 defaults to true (see below).
+
+
 (b) Support for removing undesired .la files before installation.
 This is done in /etc/portage/bashrc.d/*-remove_la.sh:
 
@@ -361,19 +382,18 @@ CCACHE_COMPRESS=true
 it can speed up things; certainly on large machines, but sometimes even on
 slow machines.)
 
-If you use a non-GNU compiler (which is assumed if and only if CC is defined):
-CACHE_CPP2=true
+CCACHE_CPP2=true # Only if USE_NONGNU is true
 (The reason is that compilers like clang have problems without this setting.)
 
 If you do not agree with the defaults chosen above, just set these variables
-to some different value e.g. in your /etc/portage/make.conf.
-In this connection the following is important:
+to some different value e.g. in your make.conf (globally) or
+package.cflags (per package). In this connection the following is important:
 
 2.
 For all CCACHE_* variables (not only for the ones listed in 1.) the following
-happens: If the variable is `False' in the Boolean sense described earlier,
+happens: If the variable is false (in the Boolean sense described earlier),
 it is unset during emerge - otherwise, it is exported.
-For instance, you put into /etc/portage/make.conf the definition
+For instance, you can put into make.conf the definition
 CCACHE_NOSTATS=true
 if you normally want to save the time to update the statics. Then you can still
 override this value by the environment for a particular emerge by calling:
