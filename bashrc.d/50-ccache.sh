@@ -7,10 +7,14 @@ CcacheVars() {
 	: ${CCACHE_SLOPPINESS='file_macro,time_macros,include_file_mtime'}
 	: ${CCACHE_COMPRESS=true}
 	[ -z "${CC++}" ] || : ${CCACHE_CPP2:=true}
-	for i in CCACHE_BASEDIR CCACHE_COMPRESS CCACHE_SLOPPINESS CCACHE_CPP2
-	do	eval "[ -n \"${i:++}\" ]" && \
-			export ${i} || unset ${i}
+	for i in BASEDIR CC COMPILERCHECK COMPRESS CPP2 \
+		DETECT_SHEBANG DIR DISABLE EXTENSION \
+		EXTRAFILES HARDLINK HASHDIR LOGFILE NLEVELS \
+		NODIRECT NOSTATS PATH PREFIX READONLY \
+		RECACHE SLOPPINESS TEMPDIR UMASK UNIFY
+	do	eval "BashrcdTrue \"\${CCACHE_${i}}\"" && \
+			export "CCACHE_${i}" || unset "CCACHE_${i}"
 	done
 }
 
-BashrcdPhase setup CcacheVars
+BashrcdPhase all CcacheVars

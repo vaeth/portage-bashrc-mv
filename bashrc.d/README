@@ -54,9 +54,9 @@ and before the other actions for the ordinary phases are executed.
 The variable $EBUILD_PHASE contains the currently executed phase.
 
 You can find out which phases are called by portage by setting the variable
-$BASHCRD_DEBUG to true (true is "true", "1", or ":", an empty value, "false"
-or "0" is false).
-
+$BASHCRD_DEBUG to true (Boolean values are handled in shell variables as
+follows: False means unset, empty value "", "n", "no", "false", "off", or "0",
+case being ignored; everything else is true).
 Since there is global variable scope for which we must avoid collision,
 the following name conventions are used: All variables and function names
 are prefixed by the (letter parts of the) file names.
@@ -347,8 +347,8 @@ Note that the variable NOLOCALEPURGE can be set per package by using (a).
 
 (d) Support for CCACHE_* variables:
 
-This sets the following defaults for CCACHE_* variables
-(it is explained after this list how to override these defaults):
+1.
+This sets the following defaults for CCACHE_* variables:
 
 CCACHE_BASEDIR=${PORTAGE_TMPDIR}/portage"
 (This saves lot of time without risk unless you have special debugging needs)
@@ -365,12 +365,22 @@ If you use a non-GNU compiler (which is assumed if and only if CC is defined):
 CACHE_CPP2=true
 (The reason is that compilers like clang have problems without this setting.)
 
-If you do not agree with the defaults chosen above just set these variables
-to some different value. To avoid that the variable is set, define them to the
-empty value. Thus, e.g. to avoid compression, set in /etc/portage/make.conf:
-CCACHE_COMPRESS=""
-(Note that CCACHE_COMPRESS=false would not have the desired effect, since
-ccache just tests whether the variable is defined.)
+If you do not agree with the defaults chosen above, just set these variables
+to some different value e.g. in your /etc/portage/make.conf.
+In this connection the following is important:
+
+2.
+For all CCACHE_* variables (not only for the ones listed in 1.) the following
+happens: If the variable is `False' in the Boolean sense described earlier,
+it is unset during emerge - otherwise, it is exported.
+For instance, you put into /etc/portage/make.conf the definition
+CCACHE_NOSTATS=true
+if you normally want to save the time to update the statics. Then you can still
+override this value by the environment for a particular emerge by calling:
+CCACHE_NOSTATS=false emerge -1 foo
+Due to the mechanism described above, CCACHE_NOSTATS will then actually be
+unset during the emerge call (note that if CCACHE_NOSTATS would not be unset,
+ccache would just recognize this variable as "set", not as "false").
 
 
 

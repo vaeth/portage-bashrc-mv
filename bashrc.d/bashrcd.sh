@@ -2,8 +2,9 @@
 # (C) Martin V\"ath <martin@mvath.de>
 
 BashrcdTrue() {
-	case ${1:-n} in
-	[nNfF]*|[oO][fF]*|0)	return 1;;
+	case ${1:-0} in
+	0|[nN]|[nN][oO]|[fF][aA][lL][sS][eE]|[oO][fF][fF])
+		return 1;;
 	esac
 }
 
