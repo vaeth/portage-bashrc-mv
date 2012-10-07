@@ -361,15 +361,19 @@ FlagSetFlags() {
 		die 'Bad GPO_DIR'
 		exit 2
 	}
+	use_gpo=false
+	if test -r "${GPO_DIR}"
+	then	unset GPO
+		BashrcdTrue ${NOGPO} || use_gpo=:
+	fi
 	if BashrcdTrue ${GPO}
 	then	FlagAddCFlags "-fprofile-generate=${GPO_DIR}" \
 			-fvpt -fprofile-arcs
 		FlagAdd LDFLAGS -fprofile-arcs
-	elif ! BashrcdTrue ${NOGPO} && test -r "${GPO_DIR}"
-	then	use_gpo=:
-		: ${KEEPGPO:=:}
-		FlagAddCFlags "-fprofile-use=${GPO_DIR}" \
+	elif ${use_gpo}
+	then	FlagAddCFlags "-fprofile-use=${GPO_DIR}" \
 			-fvpt -fbranch-probabilities -fprofile-correction
+	else	: ${KEEPGPO:=:}
 	fi
 	BashrcdTrue ${NOLDOPT} || FlagAdd LDFLAGS ${OPTLDFLAGS}
 	BashrcdTrue ${NOCADD} || case " ${LDFLAGS}" in
@@ -434,7 +438,7 @@ FlagSetup() {
 FlagCompile() {
 :
 }
-	local use_gpo=false
+	local use_gpo
 	FlagSetFlags
 	if BashrcdTrue ${GPO}
 	then
@@ -444,6 +448,9 @@ FlagPreinst() {
 		die 'cannot create GPO_DIR'
 		exit 2
 	}
+	ewarn "${CATEGORY}/${PN} will write profile info to world-writable"
+	ewarn "${GPO_DIR}"
+	ewarn 'Reemerge it soon for an optimized version and removal of that directory'
 }
 	elif BashrcdTrue ${KEEPGPO}
 	then
@@ -453,7 +460,7 @@ FlagPreinst() {
 	else
 FlagPreinst() {
 	test -d "${GPO_DIR}" || return 0
-	BashrcdEcho "removing gpo directory ${GPO_DIR}"
+	BashrcdLog "removing gpo directory ${GPO_DIR}"
 	rm -r -f -- "${GPO_DIR}" || {
 		eerror "cannot remove gpo directory ${GPO_DIR}"
 		die 'cannot remove GPO_DIR'
