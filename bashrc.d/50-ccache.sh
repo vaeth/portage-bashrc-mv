@@ -9,9 +9,9 @@ CcacheSetup() {
 	: ${CCACHE_BASEDIR="${PORTAGE_TMPDIR:-/var/tmp}/portage"}
 	: ${CCACHE_SLOPPINESS='file_macro,time_macros,include_file_mtime'}
 	: ${CCACHE_COMPRESS=true}
-	BashrcdTrue "${USE_NONGNU}" && : ${CCACHE_CPP2=true}
+	BashrcdTrue ${USE_NONGNU} && : ${CCACHE_CPP2=true}
 	for i in ${!CCACHE_*}
-	do	if eval "BashrcdTrue \"\${${i}}\""
+	do	if eval "BashrcdTrue \${${i}}"
 		then	eval BASHRCD_${i}=\${${i}}
 			export ${i}
 		else	unset ${i}

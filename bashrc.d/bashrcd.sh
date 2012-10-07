@@ -10,7 +10,7 @@ BashrcdTrue() {
 
 BashrcdLog() {
 	local i m=elog
-	BashrcdTrue "${BASHRCDNOLOG}" && m=einfo
+	BashrcdTrue ${BASHRCDNOLOG} && m=einfo
 	for i
 	do	${m} "${i}"
 	done
@@ -18,7 +18,7 @@ BashrcdLog() {
 
 BashrcdEcho() {
 	local i m=einfo
-	BashrcdTrue "${BASHRCDLOG}" && m=elog
+	BashrcdTrue ${BASHRCDLOG} && m=elog
 	for i
 	do	${m} "${i}"
 	done
@@ -58,6 +58,7 @@ BashrcdMain() {
 		"CATEGORY=${CATEGORY}" \
 		"P=${P}" \
 		"USER=${USER}" \
+		"UID=${UID}" \
 		"HOME=${HOME}" \
 		"PATH=${PATH}" \
 		"ROOT=${ROOT}" \

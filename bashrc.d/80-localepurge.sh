@@ -2,8 +2,8 @@
 # (C) Martin V\"ath <martin@mvath.de>
 
 LocalePurge() {
-	local locale_config locale_list locale_cmd shell
 	BashrcdTrue ${NOLOCALEPURGE} && return
+	local locale_config locale_list locale_cmd shell
 	locale_config="${EROOT%/}/etc/locale.nopurge"
 	locale_list="${EROOT%/}/var/cache/localepurge/localelist"
 	test -f "${locale_config}" && test -f "${locale_list}" || return 0

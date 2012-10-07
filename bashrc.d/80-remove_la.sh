@@ -2,7 +2,6 @@
 # (C) Martin V\"ath <martin@mvath.de>
 
 Remove_la() {
-	local shell
 	BashrcdTrue ${NOLAFILEREMOVE} && return
 # Some packages are known to rely on .la files (e.g. for building of plugins):
 	case "${CATEGORY}/${PN}" in
@@ -10,6 +9,7 @@ Remove_la() {
 		return 0;;
 	esac
 	einfo 'removing unneeded *.la files'
+	local shell
 	shell=`command -v sh` || shell=
 	: ${shell:=/bin/sh}
 	Dexport=${ED} find "${ED}" -name '*.la' '!' -name 'libltdl.la' \

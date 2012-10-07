@@ -341,12 +341,35 @@ FlagSetNonGNU() {
 FlagSetFlags() {
 	local ld i
 	ld=
+	: ${GPO_PARENT:=/var/cache/gpo}
+	: ${GPO_DIR:="${GPO_PARENT}/${CATEGORY}:${P}"}
 	FlagScanDir "${CONFIG_ROOT%/}/etc/portage/package.cflags"
 	[ -z "${USE_NONGNU++}" ] && FlagSetUseNonGNU && USE_NONGNU=1
-	BashrcdTrue "${USE_NONGNU}" && FlagSetNonGNU
+	BashrcdTrue ${USE_NONGNU} && FlagSetNonGNU
 	if [ -n "${FLAG_ADD}" ]
 	then	BashrcdEcho "FLAG_ADD: ${FLAG_ADD}"
 		FlagEval FlagExecute "${FLAG_ADD}"
+	fi
+	GPO_DIR=${GPO_DIR%/}
+	case ${GPO_DIR:-/} in
+	/)	error 'GPO_DIR must not be empty'
+		false;;
+	/*)	:;;
+	*)	error 'GPO_DIR must be an absolute path'
+		false;;
+	esac || {
+		die 'Bad GPO_DIR'
+		exit 2
+	}
+	if BashrcdTrue ${GPO}
+	then	FlagAddCFlags "-fprofile-generate=${GPO_DIR}" \
+			-fvpt -fprofile-arcs
+		FlagAdd LDFLAGS -fprofile-arcs
+	elif ! BashrcdTrue ${NOGPO} && test -r "${GPO_DIR}"
+	then	use_gpo=:
+		: ${KEEPGPO:=:}
+		FlagAddCFlags "-fprofile-use=${GPO_DIR}" \
+			-fvpt -fbranch-probabilities -fprofile-correction
 	fi
 	BashrcdTrue ${NOLDOPT} || FlagAdd LDFLAGS ${OPTLDFLAGS}
 	BashrcdTrue ${NOCADD} || case " ${LDFLAGS}" in
@@ -386,26 +409,64 @@ FlagInfoExport() {
 		else	unset ${out}
 		fi"
 	done
+	if BashrcdTrue ${GPO}
+	then	BashrcdEcho "Create GPO into ${GPO_DIR}"
+	elif ${use_gpo}
+	then	BashrcdEcho "Using GPO from ${GPO_DIR}"
+	fi
 	out=`gcc --version | head -n 1` || out=
 	BashrcdEcho "${out:-cannot determine gcc version}"
 	BashrcdEcho "`uname -a`"
 }
 
-FlagCheck() {
+FlagCompile() {
 	eerror \
 "${CONFIG_ROOT%/}/etc/portage/bashrc.d/*flag.sh strange order of EBUILD_PHASE:"
 	die "compile or preinst before setup"
 	exit 2
 }
 
+FlagPreinst() {
+	FlagCompile
+}
+
 FlagSetup() {
-FlagCheck() {
+FlagCompile() {
 :
 }
+	local use_gpo=false
 	FlagSetFlags
+	if BashrcdTrue ${GPO}
+	then
+FlagPreinst() {
+	test -d "${GPO_DIR}" || mkdir -p -m +1777 -- "${GPO_DIR}" || {
+		eerror "cannot create gpo directory ${GPO_DIR}"
+		die 'cannot create GPO_DIR'
+		exit 2
+	}
+}
+	elif BashrcdTrue ${KEEPGPO}
+	then
+FlagPreinst() {
+:
+}
+	else
+FlagPreinst() {
+	test -d "${GPO_DIR}" || return 0
+	BashrcdEcho "removing gpo directory ${GPO_DIR}"
+	rm -r -f -- "${GPO_DIR}" || {
+		eerror "cannot remove gpo directory ${GPO_DIR}"
+		die 'cannot remove GPO_DIR'
+		exit 2
+	}
+	local g
+	g=${GPO_DIR%/*}
+	[ -z "${g}" ] || rmdir -p -- "${g}" >/dev/null 2>&1
+}
+	fi
 	FlagInfoExport
 }
 
-BashrcdPhase compile FlagCheck
-BashrcdPhase preinst FlagCheck
+BashrcdPhase compile FlagCompile
+BashrcdPhase preinst FlagPreinst
 BashrcdPhase setup FlagSetup

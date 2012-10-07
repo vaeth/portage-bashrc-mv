@@ -15,6 +15,7 @@ on a per-package basis.
 This is similar to using /etc/portage/env but has a more convenient syntax
 for e.g. modifying CFLAGS.
 There is also a special flag filtering for non-GNU compilers (mainly clang).
+Moreover, gpo is supported.
 
 (b) Support for removing undesired .la files before installation
 
@@ -220,6 +221,32 @@ After all COMMANDs have been executed, some additional actions are taken.
 You can prevent this by setting the corresponding variables to false
 (either by a COMMAND or in the environment):
 
+GPO
+	If this variable is true, the directory $GPO_DIR
+	(usually /var/cache/gpo/$CATEGORY:$P, see below) is created during
+	the preinst phase and equipped with world-writable permissions.
+	Moreover, *FLAGS are added to write gpo profile information into
+	that directory, i.e. if you use the resulting program after emerge,
+	it will write profile data.
+	Afterwards, you can reemerge the package (with GPO=false), and
+	then presumably it will be faster.
+	For more details see the description below.
+	Note that the existence of a world-writable directory may be a
+	security issue.
+	If the variable GPO_DIR is not explicitly set, it defaults to
+	$GPO_PARENT/$CATEGORY:$P
+	If GPO_PARENT is not explicitly set, it defaults to /var/cache/gpo
+NOGPO
+	If this variable is not true, it is attempted to set *FLAGS to
+	read profile information from the directory $GPO_DIR (see above)
+	if it exists.
+KEEPGPO
+	If this variable is not true (and if GPO is not true either),
+	and if the directory $GPO_DIR (see above) exists, that directory
+	is deleted completely (and possibly empty parent directories removed).
+	Usually, this is what you want unless you have set NOGPO.
+	Therefore, if this variable is not set or empty, it defaults to
+	the same value as NOGPO.
 USE_NONGNU
 	If this variable is true, it is assumed that you use a Non-GNU
 	compiler, presumably sys-devel/clang.
@@ -264,6 +291,16 @@ NOFILTER_FCFLAGS
 
 
 Some motivation for the above commands/variables:
+
+*GPO*:
+To use GPO for some package(s), set GPO=true in your environment and
+emerge the package(s). Then use the package(s) normally, and after a while
+reemerge it/them (with GPO=false). Then usually the package(s) will be faster.
+Unless you have a special setup, you need not set any other *GPO* variables.
+Be aware that between the two emerges the world-writable directory GPO_DIR
+exists into which a malevolent user might write bad information: in case
+of a compiler bug this bad information might even be used to inject code
+into the package(s) for the second emerge.
 
 NOLDADD:
 Usually, packages take care of LDFLAGS automatically, so adding them to
