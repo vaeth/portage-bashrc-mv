@@ -267,7 +267,7 @@ FlagMask() {
 	return 1
 }
 	fi
-	FlagMask
+	FlagMask "${@}"
 }
 
 FlagScanLine() {
