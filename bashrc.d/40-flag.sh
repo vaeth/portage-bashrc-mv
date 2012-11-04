@@ -341,8 +341,8 @@ FlagSetNonGNU() {
 FlagSetFlags() {
 	local ld i
 	ld=
-	: ${GPO_PARENT:=/var/cache/gpo}
-	: ${GPO_DIR:="${GPO_PARENT}/${CATEGORY}:${P}"}
+	: ${PGO_PARENT:=/var/cache/pgo}
+	: ${PGO_DIR:="${PGO_PARENT}/${CATEGORY}:${P}"}
 	FlagScanDir "${CONFIG_ROOT%/}/etc/portage/package.cflags"
 	[ -z "${USE_NONGNU++}" ] && FlagSetUseNonGNU && USE_NONGNU=1
 	BashrcdTrue ${USE_NONGNU} && FlagSetNonGNU
@@ -350,30 +350,30 @@ FlagSetFlags() {
 	then	BashrcdEcho "FLAG_ADD: ${FLAG_ADD}"
 		FlagEval FlagExecute "${FLAG_ADD}"
 	fi
-	GPO_DIR=${GPO_DIR%/}
-	case ${GPO_DIR:-/} in
-	/)	error 'GPO_DIR must not be empty'
+	PGO_DIR=${PGO_DIR%/}
+	case ${PGO_DIR:-/} in
+	/)	error 'PGO_DIR must not be empty'
 		false;;
 	/*)	:;;
-	*)	error 'GPO_DIR must be an absolute path'
+	*)	error 'PGO_DIR must be an absolute path'
 		false;;
 	esac || {
-		die 'Bad GPO_DIR'
+		die 'Bad PGO_DIR'
 		exit 2
 	}
-	use_gpo=false
-	if test -r "${GPO_DIR}"
-	then	unset GPO
-		BashrcdTrue ${NOGPO} || use_gpo=:
+	use_pgo=false
+	if test -r "${PGO_DIR}"
+	then	unset PGO
+		BashrcdTrue ${NOPGO} || use_pgo=:
 	fi
-	if BashrcdTrue ${GPO}
-	then	FlagAddCFlags "-fprofile-generate=${GPO_DIR}" \
+	if BashrcdTrue ${PGO}
+	then	FlagAddCFlags "-fprofile-generate=${PGO_DIR}" \
 			-fvpt -fprofile-arcs
 		FlagAdd LDFLAGS -fprofile-arcs
-	elif ${use_gpo}
-	then	FlagAddCFlags "-fprofile-use=${GPO_DIR}" \
+	elif ${use_pgo}
+	then	FlagAddCFlags "-fprofile-use=${PGO_DIR}" \
 			-fvpt -fbranch-probabilities -fprofile-correction
-	else	: ${KEEPGPO:=:}
+	else	: ${KEEPPGO:=:}
 	fi
 	BashrcdTrue ${NOLDOPT} || FlagAdd LDFLAGS ${OPTLDFLAGS}
 	BashrcdTrue ${NOCADD} || case " ${LDFLAGS}" in
@@ -413,10 +413,10 @@ FlagInfoExport() {
 		else	unset ${out}
 		fi"
 	done
-	if BashrcdTrue ${GPO}
-	then	BashrcdEcho "Create GPO into ${GPO_DIR}"
-	elif ${use_gpo}
-	then	BashrcdEcho "Using GPO from ${GPO_DIR}"
+	if BashrcdTrue ${PGO}
+	then	BashrcdEcho "Create PGO into ${PGO_DIR}"
+	elif ${use_pgo}
+	then	BashrcdEcho "Using PGO from ${PGO_DIR}"
 	fi
 	out=`gcc --version | head -n 1` || out=
 	BashrcdEcho "${out:-cannot determine gcc version}"
@@ -438,36 +438,36 @@ FlagSetup() {
 FlagCompile() {
 :
 }
-	local use_gpo
+	local use_pgo
 	FlagSetFlags
-	if BashrcdTrue ${GPO}
+	if BashrcdTrue ${PGO}
 	then
 FlagPreinst() {
-	test -d "${GPO_DIR}" || mkdir -p -m +1777 -- "${GPO_DIR}" || {
-		eerror "cannot create gpo directory ${GPO_DIR}"
-		die 'cannot create GPO_DIR'
+	test -d "${PGO_DIR}" || mkdir -p -m +1777 -- "${PGO_DIR}" || {
+		eerror "cannot create pgo directory ${PGO_DIR}"
+		die 'cannot create PGO_DIR'
 		exit 2
 	}
 	ewarn "${CATEGORY}/${PN} will write profile info to world-writable"
-	ewarn "${GPO_DIR}"
+	ewarn "${PGO_DIR}"
 	ewarn 'Reemerge it soon for an optimized version and removal of that directory'
 }
-	elif BashrcdTrue ${KEEPGPO}
+	elif BashrcdTrue ${KEEPPGO}
 	then
 FlagPreinst() {
 :
 }
 	else
 FlagPreinst() {
-	test -d "${GPO_DIR}" || return 0
-	BashrcdLog "removing gpo directory ${GPO_DIR}"
-	rm -r -f -- "${GPO_DIR}" || {
-		eerror "cannot remove gpo directory ${GPO_DIR}"
-		die 'cannot remove GPO_DIR'
+	test -d "${PGO_DIR}" || return 0
+	BashrcdLog "removing pgo directory ${PGO_DIR}"
+	rm -r -f -- "${PGO_DIR}" || {
+		eerror "cannot remove pgo directory ${PGO_DIR}"
+		die 'cannot remove PGO_DIR'
 		exit 2
 	}
 	local g
-	g=${GPO_DIR%/*}
+	g=${PGO_DIR%/*}
 	[ -z "${g}" ] || rmdir -p -- "${g}" >/dev/null 2>&1
 }
 	fi
