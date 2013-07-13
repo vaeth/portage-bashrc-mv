@@ -7,7 +7,7 @@
 CcacheSetup() {
 	local i
 	: ${CCACHE_BASEDIR="${PORTAGE_TMPDIR:-/var/tmp}/portage"}
-	: ${CCACHE_SLOPPINESS='file_macro,time_macros,include_file_mtime'}
+	: ${CCACHE_SLOPPINESS='file_macro,time_macros,include_file_mtime,include_file_ctime,file_stat_matches'}
 	: ${CCACHE_COMPRESS=true}
 	BashrcdTrue ${USE_NONGNU} && : ${CCACHE_CPP2=true}
 	for i in ${!CCACHE_*}
