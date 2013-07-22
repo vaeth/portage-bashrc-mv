@@ -37,7 +37,7 @@ BashrcdPhase() {
 
 BashrcdMain() {
 	local bashrcd
-	for bashrcd in "${CONFIG_ROOT%/}/etc/portage/bashrc.d/"*.sh
+	for bashrcd in "${PORTAGE_CONFIGROOT%/}/etc/portage/bashrc.d/"*.sh
 	do	case ${bashrcd} in
 		*'/bashrcd.sh')
 			continue;;
@@ -62,7 +62,7 @@ BashrcdMain() {
 		"HOME=${HOME}" \
 		"PATH=${PATH}" \
 		"ROOT=${ROOT}" \
-		"CONFIG_ROOT=${CONFIG_ROOT}" \
+		"PORTAGE_CONFIGROOT=${PORTAGE_CONFIGROOT}" \
 		"LD_PRELOAD=${LD_PRELOAD}" \
 		"EPREFIX=${EPREFIX}" \
 		"D=${D}" \

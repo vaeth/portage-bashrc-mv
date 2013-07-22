@@ -33,7 +33,7 @@ This works as follows:
 
 When portage scans /etc/portage/bashrc for the first time,
 it sources once all files of the form
-	$CONFIG_ROOT/etc/portage/bashrc.d/*.sh
+	$PORTAGE_CONFIGROOT/etc/portage/bashrc.d/*.sh
 in alphabetical order (the exceptional file bashrc.sh contains the main code
 for this and is therefore sourced first in any case; to fix the order,
 I recommend to keep all other filenames in the form [0-9][0-9]-*.sh).
@@ -82,7 +82,7 @@ For 2:
 This is done in /etc/portage/bashrc.d/*-flag.sh:
 
 You can have a file or directory
-	${CONFIG_ROOT}/etc/portage/package.cflags
+	${PORTAGE_CONFIGROOT}/etc/portage/package.cflags
 where you can store per-packet CFLAGS, LDFLAGS, and other variables.
 If it is a directory, all non-hidden files/dir (and those not ending in ~)
 in this directory and all its subdirectories are read
@@ -122,7 +122,7 @@ the variable
 	FLAG_ADD
 
 Summarizing, DATA is a concatenation of the following data (in this order):
-	Matching lines from ${CONFIG_ROOT}/etc/portage/package.cflags
+	Matching lines from ${PORTAGE_CONFIGROOT}/etc/portage/package.cflags
 	Matching lines from $FLAG_ADDLINES
 	$FLAG_ADD
 

@@ -343,7 +343,7 @@ FlagSetFlags() {
 	ld=
 	: ${PGO_PARENT:=/var/cache/pgo}
 	: ${PGO_DIR:="${PGO_PARENT}/${CATEGORY}:${P}"}
-	FlagScanDir "${CONFIG_ROOT%/}/etc/portage/package.cflags"
+	FlagScanDir "${PORTAGE_CONFIGROOT%/}/etc/portage/package.cflags"
 	[ -z "${USE_NONGNU++}" ] && FlagSetUseNonGNU && USE_NONGNU=1
 	BashrcdTrue ${USE_NONGNU} && FlagSetNonGNU
 	if [ -n "${FLAG_ADD}" ]
@@ -425,7 +425,7 @@ FlagInfoExport() {
 
 FlagCompile() {
 	eerror \
-"${CONFIG_ROOT%/}/etc/portage/bashrc.d/*flag.sh strange order of EBUILD_PHASE:"
+"${PORTAGE_CONFIGROOT%/}/etc/portage/bashrc.d/*flag.sh strange order of EBUILD_PHASE:"
 	die "compile or preinst before setup"
 	exit 2
 }
