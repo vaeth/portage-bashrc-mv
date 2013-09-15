@@ -273,9 +273,6 @@ FlagMask() {
 FlagScanLine() {
 	local match
 	[ ${#} -lt 2 ] && return
-	case ${1:-#} in
-	'#'*)	return 0;
-	esac
 	FlagMask "${1}" || return 0
 	match=${1}
 	shift
@@ -283,13 +280,37 @@ FlagScanLine() {
 	FlagExecute "${@}"
 }
 
+FlagParseLine() {
+	local scanp scanl scansaveifs
+	scanl=${2}
+	while :
+	do	case ${scanl} in
+		[[:space:]]*)
+			scanl=${scanl#?}
+			continue;;
+		'#'*)
+			return;;
+		*[[:space:]]*)
+			break;;
+		esac
+		return
+	done
+	scanp=${scanl%%[[:space:]]*}
+	scanl=${scanl#*[[:space:]]}
+	scansaveifs=${IFS}
+	IFS=${1}
+	FlagEval FlagScanLine \"\${scanp}\" "${scanl}"
+	IFS=${scansaveifs}
+}
+
 FlagScanFiles() {
-	local scanfile scanl oldifs
+	local scanfile scanl oldifs scanifs
+	scanifs=${IFS}
 	for scanfile
 	do	[ -z "${scanfile:++}" ] && continue
 		test -r "${scanfile}" || continue
 		while IFS= read -r scanl
-		do	FlagEval FlagScanLine "${scanl}"
+		do	FlagParseLine "${scanifs}" "${scanl}"
 		done <"${scanfile}"
 	done
 }
@@ -312,8 +333,7 @@ FlagScanDir() {
 	IFS='
 '
 	for scantmp in ${FLAG_ADDLINES}
-	do	IFS=${scanifs}
-		FlagEval FlagScanLine "${scantmp}"
+	do	FlagParseLine "${scanifs}" "${scantmp}"
 	done
 	IFS=${scanifs}
 }
