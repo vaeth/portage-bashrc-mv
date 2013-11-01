@@ -163,6 +163,8 @@ FlagExecute() {
 			FlagEval FlagReplaceAllFlags "${ex%%/*}" "${ex#*/}";;
 		'-'*)
 			FlagAddAllFlags "${ex}";;
+		'+flto*')
+			FlagSubAllFlags '-flto*' '-fuse-linker-plugin' '-fwhole-program' '-emit-llvm';;
 		'+'*)
 			FlagSubAllFlags "-${ex#+}";;
 		'C*FLAGS-='*)
@@ -339,10 +341,8 @@ FlagScanDir() {
 }
 
 FlagSetUseNonGNU() {
-	[ -n "${CC}${CXX}" ] && return
-	case " ${IUSE} " in
-	*" clang "*)
-		use clang
+	case ${CC}${CXX} in
+	*clang*)
 		return;;
 	esac
 	return 1
@@ -355,7 +355,8 @@ FlagSetNonGNU() {
 		'-funsafe-loop*' '-ftree-vectorize*' '-fgcse*' '-ftree*' \
 		'-fnothrow-opt' '-fno-enforce-eh-specs' \
 		'-fgraphite*' '-floop*' \
-		'-flto-*' '-fuse-linker-plugin' '-fwhole-program'
+		'-flto*' '-fuse-linker-plugin' '-fwhole-program'
+	FlagAddCFlags '-emit-llvm'
 }
 
 FlagSetFlags() {

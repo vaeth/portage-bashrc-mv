@@ -151,6 +151,11 @@ In addition, the following special COMMANDs are supported:
 	Note that "something" can contain patterns, e.g.
 	+O?
 		removes all flags of type -O0, -O1, -O2, ...
+
++flto*
+	This is a special case of +something in the sense that it also implies
+	+fuse-linker-plugin +femit-llvm +fwhole-program
+
 /-foo/-bar
 	This is somewhat similar too +foo -bar with the only difference
 	that the preferred place of -bar is at the place of the first
@@ -248,13 +253,15 @@ KEEPPGO
 	but if you have set NOPGO (and $PGO_DIR exists) this variable
 	defaults to true.
 USE_NONGNU
-	If this variable is true, it is assumed that you use a Non-GNU
-	compiler, presumably sys-devel/clang.
+	If this variable is true, it is exported
 	(If you have not explicitly defined USE_NONGNU, the value of this
 	variable is calculated by some heuristics described later).
 	If this variable is true, also NOLDADD (see below) defaults to true
 	(unless you have explicitly defined NOLDADD), and some flags
-	are filtered which are known to be unsupported by sys-devel/clang.
+	are filtered which are known to be unsupported by sys-devel/clang,
+	and CCACHE_CPP2 is set if CCACHE_CPP2_OPTIONAL is true.
+	Moreover, if -flto is in CFLAGS or CXXFLAGS then also -emit-llvm
+	is added.
 NOLDOPT
 	If this variable is false, then the OPTLDFLAGS will be added
 	to the LDFLAGS
@@ -373,15 +380,11 @@ In a similar manner, you should handle modifications of other FEATURES.
 
 Support for Non-GNU compilers:
 
-If you have set CC or CXX, or if there is an active USE=clang (e.g. in eix),
-it is assumed that you will use a non-GNU compiler, probably sys-devel/clang.
+If your CC or CXX contains "clang" it is assumed that you use sys-devel/clang.
 In this case, the variable USE_NONGNU=1 is exported.
 You can avoid this by setting this variable explicitly to the empty value,
 e.g. in make.conf or package.cflags.
-If USE_NONGNU is active, some flags are filtered which give only errors or
-warnings with clang (more details were described above).
-Moreover, in this case also CCACHE_CPP2 defaults to true (see below).
-
+The effect of USE_NONGNU was described earlier.
 
 (b) Support for removing undesired .la files before installation.
 This is done in /etc/portage/bashrc.d/*-remove_la.sh:
@@ -422,8 +425,10 @@ CCACHE_COMPRESS=true
 it can speed up things; certainly on large machines, but sometimes even on
 slow machines.)
 
-CCACHE_CPP2=true # Only if USE_NONGNU is true
-(The reason is that compilers like clang have problems without this setting.)
+CCACHE_CPP2=true # Only if USE_NONGNU and CCACHE_CPP2_OPTIONAL are true
+(The reason is that older versions of ccache had problems with clang without
+this setting. Since current versions have no such problem and CCACHE_CPP2
+costs time, this is now done only if CCACHE_CPP2_OPTIONAL is set).
 
 If you do not agree with the defaults chosen above, just set these variables
 to some different value e.g. in your make.conf (globally) or
