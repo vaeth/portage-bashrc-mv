@@ -391,6 +391,7 @@ FlagSetFlags() {
 	then	FlagAddCFlags "-fprofile-generate=${PGO_DIR}" \
 			-fvpt -fprofile-arcs
 		FlagAdd LDFLAGS -fprofile-arcs
+		addpredict "${PGO_PARENT}"
 	elif ${use_pgo}
 	then	FlagAddCFlags "-fprofile-use=${PGO_DIR}" \
 			-fvpt -fbranch-probabilities -fprofile-correction
