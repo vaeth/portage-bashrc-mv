@@ -7,7 +7,7 @@
 CcacheSetup() {
 	local i
 	: ${CCACHE_BASEDIR="${PORTAGE_TMPDIR:-/var/tmp}/portage"}
-	: ${CCACHE_SLOPPINESS='file_macro,time_macros,include_file_mtime,include_file_ctime,file_stat_matches'}
+	: ${CCACHE_SLOPPINESS='file_macro,time_macros,include_file_mtime,include_file_ctime,file_stat_matches,pch_defines'}
 	: ${CCACHE_COMPRESS=true}
 	if BashrcdTrue ${USE_NONGNU} && BashrcdTrue ${CCACHE_CPP2_OPTIONAL}
 	then	: ${CCACHE_CPP2=true}
