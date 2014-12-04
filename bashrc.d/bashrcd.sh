@@ -48,8 +48,9 @@ BashrcdMain() {
 	done
 	unset -f BashrcdPhase
 BashrcdMain() {
-	local bashrcd_phase bashrcd_num bashrcd_max
-	[ ${#} -ne 0 ] && EBUILD_PHASE=${1}
+	local bashrcd_ebuild_phase bashrcd_phase bashrcd_num bashrcd_max
+	bashrcd_ebuild_phase=${EBUILD_PHASE}
+	[ -n "${bashrcd_ebuild_phase:++}" ] || [ ${#} -eq 0 ] || bashrcd_ebuild_phase=${1}
 	: ${ED:=${D%/}${EPREFIX%/}/}
 	BashrcdTrue ${BASHRCD_DEBUG} && BashrcdEcho \
 		"${0}: ${*} (${#} args)" \
@@ -67,7 +68,7 @@ BashrcdMain() {
 		"EPREFIX=${EPREFIX}" \
 		"D=${D}" \
 		"ED=${ED}"
-	for bashrcd_phase in all "${EBUILD_PHASE}"
+	for bashrcd_phase in all "${bashrcd_ebuild_phase}"
 	do	eval bashrcd_max=\${bashrcd_phases_c_${bashrcd_phase}}
 		[ -z "${bashrcd_max:++}" ] && continue
 		bashrcd_num=0

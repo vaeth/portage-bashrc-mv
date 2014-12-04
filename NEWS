@@ -1,0 +1,18 @@
+Important!
+
+If you use >=portage-2.2.15 and have previously used <portage-bashrc-mv-13
+you will get problems, because <portage-bashrc-mv-13 modified EBUILD_PHASE
+which has been declared readonly in >=portage-2.2.15, and thus modification
+leads to an error abort of portage.
+In this case you have to run once
+
+fix-portage-2.2.15 [if you use prefix-portage, use your $EPREFIX as argument]
+
+This command will fix the environment.bz2 files in ${1%/}/var/db/pkg
+which were generated with <portage-bashrc-mv-13 and which are
+incompatible with the mentioned change in portage-2.2.15
+
+(Unfortunately, it is not possible to fix this in portage-bashrc-mv alone,
+since environment.bz2 is used for unmerging, overriding portage-bashrc-mv.)
+
+Execute fix-portage-2.2.15 as the first command after upgrading portage-2.2.15!
