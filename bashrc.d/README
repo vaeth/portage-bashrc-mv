@@ -24,6 +24,9 @@ Moreover, pgo (profile-guided optimization) is supported.
 
 (d) Support for CCACHE_* variables.
 
+(e) Output of time information and title bar if app-portage/portage-utils
+and "app-shells/runtitle" (the latter from the mv overlay) are installed.
+
 
 For 1:
 
@@ -447,6 +450,16 @@ Due to the mechanism described above, CCACHE_NOSTATS will then actually be
 unset during the emerge call (note that if CCACHE_NOSTATS would not be unset,
 ccache would just recognize this variable as "set", not as "false").
 
+(e) Output of time information and title bar:
+This is done in /etc/portage/bashrc.d/*-title.sh:
+
+If the "qlop" command of app-portage/portage-utils is available,
+it is used to output the expected emerge time of the package,
+whenever a package starts to emerge.
+Moreover, if in addition a "title" command is available (e.g. provided by
+app-shells/runtitle from the mv overlay), then this command is used to
+display the expected emerge time of the package as the windows title
+and/or in the hardstatus line, overriding portage's original output.
 
 
 Recommendations and notes concerning earlier versions of this project:
