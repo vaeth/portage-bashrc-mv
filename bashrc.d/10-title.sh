@@ -19,8 +19,8 @@ QlopSetup() {
 	sec=$(( ${sec} % 3600 ))
 	min=$(( ${sec} / 60 ))
 	sec=$(( ${sec} % 60 ))
-	[ "${min}" -gt 10 ] || min=0${min}
-	[ "${sec}" -gt 10 ] || sec=0${sec}
+	[ "${min}" -gt 9 ] || min=0${min}
+	[ "${sec}" -gt 9 ] || sec=0${sec}
 	date=$(date +%T)
 	title "emerge ${date} ${num} ${PN} ${hour}${min}:${sec}"
 }
