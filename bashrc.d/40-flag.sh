@@ -355,7 +355,10 @@ FlagSetNonGNU() {
 		'-funsafe-loop*' '-ftree-vectorize*' '-fgcse*' '-ftree*' \
 		'-fnothrow-opt' '-fno-enforce-eh-specs' \
 		'-fgraphite*' '-floop*' \
-		'-flto*' '-fuse-linker-plugin' '-fwhole-program'
+		'-flto*' '-fuse-linker-plugin' '-fwhole-program' \
+		'-fira-loop-pressure' '-freorder-functions' \
+		'-fno-semantic-interposition' '-fvect-cost-model' \
+		'-fivopts' '-fdevirtualize-speculatively' '-finline-functions'
 	FlagAddCFlags '-emit-llvm'
 }
 
