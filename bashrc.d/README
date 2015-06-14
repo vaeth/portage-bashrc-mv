@@ -222,8 +222,9 @@ SAFE
 	This is a shortcut for
 		NO*OPT=1 NOLDADD=1 NOCADD=1 LDFLAGS=''
 		CONFIG_SITE='' NOLAFILEREMOVE=1
+		'unset CMAKE_MAKEFILE_GENERATOR'
 	Note that this is the only command which modifies the variables
-	CONFIG_SITE NOLAFILEREMOVE
+	CONFIG_SITE NOLAFILEREMOVE CMAKE_MAKEFILE_GENERATOR
 
 After all COMMANDs have been executed, some additional actions are taken.
 You can prevent this by setting the corresponding variables to false

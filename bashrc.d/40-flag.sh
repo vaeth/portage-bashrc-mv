@@ -218,7 +218,8 @@ FlagExecute() {
 			NOCADD=1
 			LDFLAGS=
 			CONFIG_SITE=
-			NOLAFILEREMOVE=1;;
+			NOLAFILEREMOVE=1
+			unset CMAKE_MAKEFILE_GENERATOR;;
 		*' '*'='*)
 			FlagEval "${ex}";;
 		*'/=/'*'/'*)
