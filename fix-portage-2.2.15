@@ -1,31 +1,31 @@
 #!/usr/bin/env sh
 Die() {
-	echo "${0##*/}: ${*}" >&2
+	echo "${0##*/}: $*" >&2
 	exit 1
 }
-dir="${1%/}/var/db/pkg"
-cd "${dir}" >/dev/null || Die "cannot cd to ${dir}"
-echo "Press return to start fixing in ${dir}"
+dir=${1%/}/var/db/pkg
+cd "$dir" >/dev/null || Die "cannot cd to $dir"
+echo "Press return to start fixing in $dir"
 echo "Press Ctrl-C to cancel"
 read dummy
 find . -name environment.bz2 | while read -r file
-do	file=${dir}/${file#./}
+do	file=$dir/${file#./}
 	{
-		bzip2 -d -c -- "${file}" | \
+		bzip2 -d -c -- "$file" | \
 			sed -n -e '/ EBUILD_PHASE=[^ ]*;/{p;q}'
 		echo
 	} | {
 		a=
 		read a
 		if [ -z "${a:++}" ]
-		then	echo "Is OK: ${file}"
-		else	echo "Fixing ${file}"
+		then	echo "Is OK: $file"
+		else	echo "Fixing $file"
 			outfile=${file%.bz2}
-			bzip2 -d -c -- "${file}" | \
-				sed -e 's/ \(EBUILD_PHASE=[^ ]*;\)/ : _\1/' >"${outfile}" \
-				|| Die "cannot generate ${outfile}"
-			bzip2 -9 -c "${outfile}" >"${file}" || Die "cannot generate ${file}"
-			rm -f -- "${outfile}" || Die "cannot remove ${outfile}"
+			bzip2 -d -c -- "$file" | \
+				sed -e 's/ \(EBUILD_PHASE=[^ ]*;\)/ : _\1/' >"$outfile" \
+				|| Die "cannot generate $outfile"
+			bzip2 -9 -c "$outfile" >"$file" || Die "cannot generate $file"
+			rm -f -- "$outfile" || Die "cannot remove $outfile"
 		fi
 	} || exit 1
 done

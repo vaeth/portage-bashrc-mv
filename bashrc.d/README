@@ -71,8 +71,8 @@ functions which work for all ebuilds without taking care of the EAPI
 in this respect.
 
 For convenience, there are also some functions provided:
-	BashrcdTrue ${variable}
-tests if ${variable} value is "true".
+	BashrcdTrue $variable
+tests if $variable value is "true".
 	BashrcdLog "output line 1" "output line 2" ...
 	BashrcdEcho "output line 1" "output line 2" ...
 is as "elog" or "einfo", but prints each argument in a separate line.
@@ -85,7 +85,7 @@ For 2:
 This is done in /etc/portage/bashrc.d/*-flag.sh:
 
 You can have a file or directory
-	${PORTAGE_CONFIGROOT}/etc/portage/package.cflags
+	$PORTAGE_CONFIGROOT/etc/portage/package.cflags
 where you can store per-packet CFLAGS, LDFLAGS, and other variables.
 If it is a directory, all non-hidden files/dir (and those not ending in ~)
 in this directory and all its subdirectories are read
@@ -125,7 +125,7 @@ the variable
 	FLAG_ADD
 
 Summarizing, DATA is a concatenation of the following data (in this order):
-	Matching lines from ${PORTAGE_CONFIGROOT}/etc/portage/package.cflags
+	Matching lines from $PORTAGE_CONFIGROOT/etc/portage/package.cflags
 	Matching lines from $FLAG_ADDLINES
 	$FLAG_ADD
 
@@ -362,7 +362,7 @@ sci-mathematics/scilab "export PVM_ARCH='LINUX'" # observe the quoting
 media-libs/freetype +ftree-vectorize*            # Filter -ftree-vectorize*
 media-video/ffmpeg EXTRA_ECONF='' +combine
 media-video/kaffeine !/-O?/-O2 !+finline-functions # filter if in 32bit-mode
-media-video/mpeg4ip MAKEOPTS="-j1"
+media-video/mpeg4ip MAKEOPTS=-j1
 sys-boot/grub SAFE                               # Use "safe" settings
 sys-fs/sysfsutils NOLDADD=1
 sci-libs/*-atlas FEATURES-=ccache                # Bad, see below...
@@ -378,7 +378,7 @@ however, it is better to use /etc/portage/package.env anyway.
 For the above example, put into /etc/portage/package.env better the line
 sci-libs/*-atlas noccache.conf
 and create a file /etc/portage/env/noccache.conf with the line
-FEATURES="-ccache"
+FEATURES=-ccache
 In a similar manner, you should handle modifications of other FEATURES.
 
 
@@ -418,7 +418,7 @@ Note that the variable NOLOCALEPURGE can be set per package by using (a).
 1.
 This sets the following defaults for CCACHE_* variables:
 
-CCACHE_BASEDIR=${PORTAGE_TMPDIR}/portage"
+CCACHE_BASEDIR=$PORTAGE_TMPDIR/portage"
 (This saves lot of time without risk unless you have special debugging needs)
 
 CCACHE_SLOPPINESS='file_macro,time_macros,include_file_mtime,include_file_ctime,file_stat_matches,pch_defines'
@@ -471,7 +471,7 @@ by default (if you did not want them explicitly).
 This is no longer the case, since this is better done by setting
 INSTALL_MASK in make.conf.
 For instance, to avoid installing bash-completion support, set
-	INSTALL_MASK="/usr/share/bash-completion"
+	INSTALL_MASK=/usr/share/bash-completion
 
 (2)
 Some earlier versions of this project have set the variables LANG or LC_ALL
@@ -479,9 +479,9 @@ to sane values.
 This is no longer the case, since it is better to do this in make.conf.
 For instance, I recommend to put something like
 	LANG=C
-	LC_CTYPE="${LANG}"
-	LC_COLLATE="${LANG}"
-	LC_MESSAGES="${LANG}"
+	LC_CTYPE=$LANG
+	LC_COLLATE=$LANG
+	LC_MESSAGES=$LANG
 into make.conf to avoid triggering bugs with not well-tested settings.
 Using package.cflags, you can still change these settings per package.
 
