@@ -242,29 +242,34 @@ FlagMask() {
 	if command -v masked-packages >/dev/null 2>&1
 	then
 FlagMask() {
-	masked-packages -qm "$1" -- "$CATEGORY/$PF:$SLOT"${PORTAGE_REPO_NAME:+::}$PORTAGE_REPO_NAME
+	masked-packages -qm "$1" -- "$CATEGORY/$PF:${SLOT:-0}${PORTAGE_REPO_NAME:+::}${PORTAGE_REPO_NAME-}"
 }
 	else
 FlagMask() {
 	local add=
 	case ${1%::*} in
-	*':'*)	add=:$SLOT;;
+	*':'*)
+		add=:${SLOT:-0};;
 	esac
 	case $1 in
-	*'::'*)	add=$add::$PORTAGE_REPO_NAME;;
+	*'::'*)
+		add=$add::$PORTAGE_REPO_NAME;;
 	esac
 	case $1 in
 	'~'*)
 		case "~$CATEGORY/$PN-$PV$add" in
-		$1)	return;;
+		$1)
+			return;;
 		esac;;
 	'='*)
 		case "=$CATEGORY/$PF$add" in
-		$1)	return;;
+		$1)
+			return;;
 		esac;;
 	*)
 		case "$CATEGORY/$PN$add" in
-		$1)	return;;
+		$1)
+			return;;
 		esac;;
 	esac
 	return 1
@@ -377,10 +382,13 @@ FlagSetFlags() {
 	fi
 	PGO_DIR=${PGO_DIR%/}
 	case ${PGO_DIR:-/} in
-	/)	error 'PGO_DIR must not be empty'
+	/)
+		error 'PGO_DIR must not be empty'
 		false;;
-	/*)	:;;
-	*)	error 'PGO_DIR must be an absolute path'
+	/*)
+		:;;
+	*)
+		error 'PGO_DIR must be an absolute path'
 		false;;
 	esac || {
 		die 'Bad PGO_DIR'
