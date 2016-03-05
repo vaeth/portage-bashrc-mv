@@ -18,7 +18,7 @@ QlopSetup() {
 		sed -e 's/^.* \([0-9]*\) second.*$/\1/') \
 	&& [ -n "$sec" ] || {
 		date=$(date +%T)
-		title "emerge $date $num$ $PN"
+		title "emerge $date $num $PN"
 		return
 	}
 	hour=$(( $sec / 3600 ))
