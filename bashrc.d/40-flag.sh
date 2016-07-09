@@ -20,7 +20,7 @@ FlagAdd() {
 		*[[:space:]]"$addf"[[:space:]]*)
 			continue;;
 		esac
-		addres=$addres${addres:+ }$addf
+		addres=$addres${addres:+\ }$addf
 	done
 	eval $addvar=\$addres
 }
@@ -40,7 +40,7 @@ FlagSub() {
 				break;;
 			esac
 		done
-		[ -z "${subf:++}" ] || subres=$subres${subres:+ }$subf
+		[ -z "${subf:++}" ] || subres=$subres${subres:+\ }$subf
 	done
 	eval $subvar=\$subres
 }
@@ -65,7 +65,7 @@ FlagReplace() {
 			repfound=false
 			continue;;
 		esac
-		repres=$repres${repres:+ }$repcurr
+		repres=$repres${repres:+\ }$repcurr
 	done
 	$repfound && FlagAdd repres "$@"
 	eval $repvar=\$repres
