@@ -410,7 +410,7 @@ FlagSetFlags() {
 	else	: ${KEEPPGO:=:}
 	fi
 	BashrcdTrue $NOLDOPT || FlagAdd LDFLAGS $OPTLDFLAGS
-	BashrcdTrue $NOCADD || case " $LDFLAGS" in
+	BashrcdTrue $NOCADD || case " $LDFLAGS $CFLAGS $CXXFLAGS" in
 		*[[:space:]]'-flto'*)
 			ld="$CFLAGS $CXXFLAGS";;
 		esac

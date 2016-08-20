@@ -282,8 +282,9 @@ NOLDADD
 	If this variable is false, the LDFLAGS variable finally
 	calculated will be added to the CFLAGS and CXXFLAGS
 NOCADD
-	If this variable is false and LDFLAGS contains -flto*, the
-	CFLAGS variable finally calculated will be added to the LDFLAGS.
+	If this variable is false and some of CFLAGS, CXXFLAGS, or LDFLAGS
+	contains -flto* then the CFLAGS and CXXFLAGS variables finally
+	calculated will be added to the LDFLAGS.
 NOFFLAGS
 	If this variable is false, then the CFLAGS finally calculated
 	will also be used as FFLAGS
