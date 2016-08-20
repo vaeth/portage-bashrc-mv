@@ -415,7 +415,7 @@ FlagSetFlags() {
 			ld="$CFLAGS $CXXFLAGS";;
 		esac
 	BashrcdTrue $NOLDADD || FlagAddCFlags $LDFLAGS
-	FlagAdd ldadd $ld
+	FlagAdd LDFLAGS $ld
 	BashrcdTrue $NOCOPT || FlagAdd CFLAGS $OPTCFLAGS
 	BashrcdTrue $NOCXXOPT || FlagAdd CXXFLAGS $OPTCXXFLAGS
 	BashrcdTrue $NOCPPOPT || FlagAdd CPPFLAGS $OPTCPPFLAGS
