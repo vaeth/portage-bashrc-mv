@@ -2,10 +2,11 @@
 # (C) Martin V\"ath <martin@mvath.de>
 
 BashrcdTrue() {
-	case ${1:-0} in
-	0|[nN]|[nN][oO]|[fF][aA][lL][sS][eE]|[oO][fF][fF])
+	case ${1:-n} in
+	[nNfF0-]*|[oO][fF]*)
 		return 1;;
 	esac
+	:
 }
 
 BashrcdLog() {
