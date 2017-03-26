@@ -356,13 +356,16 @@ FlagSetUseNonGNU() {
 
 FlagSetNonGNU() {
 	: ${NOLDADD:=1}
-	FlagSubAllFlags '-fno-ident' '-fweb' '-frename-registers' \
+	FlagSubAllFlags '-mvectorize*' \
+		'-fno-ident' '-fweb' '-frename-registers' \
 		'-fpredictive-commoning' '-fdirectives*' \
 		'-funsafe-loop*' '-ftree-vectorize*' '-fgcse*' '-ftree*' \
 		'-fnothrow-opt' '-fno-enforce-eh-specs' \
-		'-fgraphite*' '-floop*' \
+		'-fgraphite*' '-floop*' '-fsched*' \
 		'-flto-*' '-fuse-linker-plugin' '-fwhole-program' \
 		'-fira-loop-pressure' '-freorder-functions' \
+		'-fipa-pta' '-fmodulo*' '-frerun-cse-after-loop' \
+		'-fisolate-erroneous-paths-attribute' '-fsection-anchors' \
 		'-fno-semantic-interposition' '-fvect-cost-model' \
 		'-fivopts' '-fdevirtualize-speculatively' '-finline-functions'
 	# FlagAddCFlags '-flto' '-emit-llvm'
