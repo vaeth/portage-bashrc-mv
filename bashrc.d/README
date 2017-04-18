@@ -217,7 +217,7 @@ NOLD*=...
 NO*=...
 	This sets simultaneously all of the special variables
 	NOCOPT, NOCXXOPT, NOCPPOPT, NOLDOPT, NOLDADD, NOFFLAGS,
-	NOFCFLAGS (see below).
+	NOFCFLAGS, NOF77FLAGS (see below).
 SAFE
 	This is a shortcut for
 		NO*OPT=1 NOLDADD=1 NOCADD=1 LDFLAGS=''
@@ -257,15 +257,15 @@ KEEPPGO
 	but if you have set NOPGO (and $PGO_DIR exists) this variable
 	defaults to true.
 USE_NONGNU
-	If this variable is true, it is exported
-	(If you have not explicitly defined USE_NONGNU, the value of this
-	variable is calculated by some heuristics described later).
-	If this variable is true, also NOLDADD (see below) defaults to true
-	(unless you have explicitly defined NOLDADD), and some flags
-	are filtered which are known to be unsupported by sys-devel/clang,
-	and CCACHE_CPP2 is set if CCACHE_CPP2_OPTIONAL is true.
-	Moreover, if -flto is in CFLAGS or CXXFLAGS then also -emit-llvm
-	is added.
+	If this variable is false, the flags from the bash array
+	FLAG_FILTER_GNU are filtered: These are known to be not supported by
+	GNU compilers.
+	If this variable is true, the following happens:
+	1. The flags from the bash array FLAG_FILTER_NONGNU are filtered
+	   (these are known to be unsupported by sys-devel/clang).
+	2. The variable USE_NONGNU is exported.
+	3. NOLDADD (see below) defaults to true (unless you have explicitly
+	   defined NOLDADD).
 NOLDOPT
 	If this variable is false, then the OPTLDFLAGS will be added
 	to the LDFLAGS
@@ -291,15 +291,33 @@ NOFFLAGS
 NOFCFLAGS
 	If this variable is false, then the FFLAGS finally calculated
 	will also be used as FCFLAGS
+NOF77FLAGS
+	If this variable is false, then the FFLAGS finally calculated
+	will also be used as F77FLAGS
+NOFILTER_CXXFLAGS
+	If this variable is false, then CXXFLAGS from the bash array
+	FLAGS_FILTER_CXXFLAGS
+	are removed. This array contains flags known to be invalid for C++.
 NOFILTER_CFLAGS
-	If this variable is false, then CFLAGS known to be forbidden
-	for C will be removed.
+	If this variable is false, then CFLAGS from the bash arrays
+	FLAGS_FILTER_C_FORTRAN FLAGS_FILTER_CFLAGS
+	are removed. These arrays contain flags known to be invalid for
+	C or Fortran, or only for C, respectively.
 NOFILTER_FFLAGS
-	If this variable is false, then FFLAGS known to be forbidden
-	for fortran will be removed.
+	If this variable is false, then FFLAGS from the bash arrays
+	FLAGS_FILTER_C_FORTRAN FLAGS_FILTER_FORTRAN FLAGS_FILTER_FFLAGS
+	are removed. These arrays contain flags known to be invalid for
+	C or Fortran, only for Fortran, or only for FFLAGS, respectively.
 NOFILTER_FCFLAGS
-	If this variable is false, then FCFLAGS known to be
-	forbidden for fortran will be removed.
+	If this variable is false, then FFLAGS from the bash arrays
+	FLAGS_FILTER_C_FORTRAN FLAGS_FILTER_FORTRAN FLAGS_FILTER_FCFLAGS
+	are removed. These arrays contain flags known to be invalid for
+	C or Fortran, only for Fortran, or only for FCFLAGS, respectively.
+NOFILTER_F77FLAGS
+	If this variable is false, then FFLAGS from the bash arrays
+	FLAGS_FILTER_C_FORTRAN FLAGS_FILTER_FORTRAN FLAGS_FILTER_F77FLAGS
+	are removed. These arrays contain flags known to be invalid for
+	C or Fortran, only for Fortran, or only for F77FLAGS, respectively.
 
 
 Some motivation for the above commands/variables:

@@ -1,6 +1,72 @@
 #!/bin/bash
 # (C) Martin V\"ath <martin@mvath.de>
 
+FLAG_FILTER_C_FORTRAN=(
+	'-fvisibility-inlines-hidden'
+	'-fno-enforce-eh-specs'
+)
+
+FLAG_FILTER_CFLAGS=(
+)
+
+FLAG_FILTER_CXXFLAGS=(
+)
+
+FLAG_FILTER_FORTRAN=(
+	'-fdirectives-only'
+)
+
+FLAG_FILTER_FFLAGS=(
+)
+
+FLAG_FILTER_FCFLAGS=(
+)
+
+FLAG_FILTER_F77FLAGS=(
+)
+
+FLAG_FILTER_NONGNU=(
+	'-fdevirtualize-speculatively'
+	'-fdirectives-only'
+	'-fgcse*'
+	'-fgraphite*'
+	'-finline-functions'
+	'-fipa-pta'
+	'-fira-loop-pressure'
+	'-fisolate-erroneous-paths-attribute'
+	'-fivopts'
+	'-floop*'
+	'-flto-*'
+	'-fmodulo*'
+	'-fno-enforce-eh-specs'
+	'-fno-ident'
+	'-fno-semantic-interposition'
+	'-fnothrow-opt'
+	'-fpredictive-commoning'
+	'-frename-registers'
+	'-freorder-functions'
+	'-frerun-cse-after-loop'
+	'-fsched*'
+	'-fsection-anchors'
+	'-ftree*'
+	'-ftree-vectorize*'
+	'-funsafe-loop*'
+	'-fuse-linker-plugin'
+	'-fvect-cost-model'
+	'-fweb'
+	'-fwhole-program'
+	'-mvectorize*'
+)
+
+FLAG_FILTER_GNU=(
+	'-emit-llvm'
+	'-flto=thin'
+	'-fsanitize=cfi'
+	'-fsanitize=safe-stack'
+	'-mllvm'
+	'-polly*'
+)
+
 FlagEval() {
 	case $- in
 	*f*)	eval "$*";;
@@ -133,8 +199,8 @@ FlagSetAllFlags() {
 }
 
 FlagAthlon() {
-	FlagSubCFlags -march='*'
-	FlagAddCFlags -march=athlon-4
+	FlagSubCFlags '-march=*'
+	FlagAddCFlags '-march=athlon-4'
 	command -v x86_64-pc-linux-gnu-gcc32 >/dev/null 2>&1 && \
 		export CC=x86_64-pc-linux-gnu-gcc32
 	command -v x86_64-pc-linux-gnu-g++32 >/dev/null 2>&1 && \
@@ -208,7 +274,8 @@ FlagExecute() {
 			NOLDOPT=$NOCOPT
 			NOLDADD=$NOCOPT
 			NOFFLAGS=$NOCOPT
-			NOFCFLAGS=$NOCOPT;;
+			NOFCFLAGS=$NOCOPT
+			NOF77FLAGS=$NOCOPT;;
 		'SAFE')
 			NOCOPT=1
 			NOCXXOPT=1
@@ -356,19 +423,12 @@ FlagSetUseNonGNU() {
 
 FlagSetNonGNU() {
 	: ${NOLDADD:=1}
-	FlagSubAllFlags '-mvectorize*' \
-		'-fno-ident' '-fweb' '-frename-registers' \
-		'-fpredictive-commoning' '-fdirectives*' \
-		'-funsafe-loop*' '-ftree-vectorize*' '-fgcse*' '-ftree*' \
-		'-fnothrow-opt' '-fno-enforce-eh-specs' \
-		'-fgraphite*' '-floop*' '-fsched*' \
-		'-flto-*' '-fuse-linker-plugin' '-fwhole-program' \
-		'-fira-loop-pressure' '-freorder-functions' \
-		'-fipa-pta' '-fmodulo*' '-frerun-cse-after-loop' \
-		'-fisolate-erroneous-paths-attribute' '-fsection-anchors' \
-		'-fno-semantic-interposition' '-fvect-cost-model' \
-		'-fivopts' '-fdevirtualize-speculatively' '-finline-functions'
+	FlagSubAllFlags "${FLAG_FILTER_NONGNU[@]}"
 	# FlagAddCFlags '-flto' '-emit-llvm'
+}
+
+FlagSetGNU() {
+	FlagSubAllFlags "${FLAG_FILTER_GNU[@]}"
 }
 
 FlagSetFlags() {
@@ -378,7 +438,7 @@ FlagSetFlags() {
 	: ${PGO_DIR:=$PGO_PARENT/$CATEGORY:$P}
 	FlagScanDir "${PORTAGE_CONFIGROOT%/}/etc/portage/package.cflags"
 	[ -z "${USE_NONGNU++}" ] && FlagSetUseNonGNU && USE_NONGNU=1
-	BashrcdTrue $USE_NONGNU && FlagSetNonGNU
+	BashrcdTrue $USE_NONGNU && FlagSetNonGNU || FlagSetGNU
 	if [ -n "$FLAG_ADD" ]
 	then	BashrcdEcho "FLAG_ADD: $FLAG_ADD"
 		FlagEval FlagExecute "$FLAG_ADD"
@@ -424,26 +484,30 @@ FlagSetFlags() {
 	BashrcdTrue $NOCPPOPT || FlagAdd CPPFLAGS $OPTCPPFLAGS
 	BashrcdTrue $NOFFLAGS || FFLAGS=$CFLAGS
 	BashrcdTrue $NOFCFLAGS || FCFLAGS=$FFLAGS
+	BashrcdTrue $NOF77FLAGS || F77FLAGS=$FFLAGS
+	BashrcdTrue $NOFILTER_CXXFLAGS || FlagSub CXXFLAGS \
+		"${FLAG_FILTER_CXXFLAGS[@]}"
 	BashrcdTrue $NOFILTER_CFLAGS || FlagSub CFLAGS \
-		-fvisibility-inlines-hidden \
-		-fno-enforce-eh-specs
+		"${FLAG_FILTER_C_FORTRAN[@]}" "${FLAG_FILTER_CFLAGS[@]}"
 	BashrcdTrue $NOFILTER_FFLAGS || FlagSub FFLAGS \
-		-fdirectives-only \
-		-fvisibility-inlines-hidden \
-		-fno-enforce-eh-specs
+		"${FLAG_FILTER_C_FORTRAN[@]}" "${FLAG_FILTER_FORTRAN[@]}" \
+		"${FLAG_FILTER_FFLAGS[@]}"
 	BashrcdTrue $NOFILTER_FCFLAGS || FlagSub FCFLAGS \
-		-fdirectives-only \
-		-fvisibility-inlines-hidden \
-		-fno-enforce-eh-specs
+		"${FLAG_FILTER_C_FORTRAN[@]}" "${FLAG_FILTER_FORTRAN[@]}" \
+		"${FLAG_FILTER_FCFLAGS[@]}"
+	BashrcdTrue $NOFILTER_F77FLAGS || FlagSub FCFLAGS \
+		"${FLAG_FILTER_C_FORTRAN[@]}" "${FLAG_FILTER_FORTRAN[@]}" \
+		"${FLAG_FILTER_F77FLAGS[@]}"
 	unset OPTCFLAGS OPTCXXFLAGS OPTCPPFLAGS OPTLDFLAGS
-	unset NOLDOPT NOLDADD NOCOPT NOCXXOPT NOFFLAGS NOFCFLAGS
-	unset NOFILTER_CFLAGS NOFILTER_FFLAGS NOFILTER_FCFLAGS
+	unset NOLDOPT NOLDADD NOCOPT NOCXXOPT NOFFLAGS NOFCFLAGS NOF77FLAGS
+	unset NOFILTER_CXXFLAGS NOFILTER_CFLAGS
+	unset NOFILTER_FFLAGS NOFILTER_FCFLAGS NOFILTER_F77FLAGS
 }
 
 FlagInfoExport() {
 	local out
-	for out in FEATURES CFLAGS CXXFLAGS CPPFLAGS FFLAGS FCFLAGS LDFLAGS \
-		MAKEOPTS EXTRA_ECONF EXTRA_EMAKE USE_NONGNU
+	for out in FEATURES CFLAGS CXXFLAGS CPPFLAGS FFLAGS FCFLAGS F77FLAGS \
+		LDFLAGS MAKEOPTS EXTRA_ECONF EXTRA_EMAKE USE_NONGNU
 	do	eval "if [ -n \"\${$out:++}\" ]
 		then	export $out
 			BashrcdEcho \"$out='\$$out'\"
