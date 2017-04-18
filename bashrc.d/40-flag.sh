@@ -1,9 +1,101 @@
 #!/bin/bash
 # (C) Martin V\"ath <martin@mvath.de>
 
+FLAG_FILTER_C_CXX=(
+	'-fall-intrinsics'
+	'-fbackslash'
+	'-fcray-pointer'
+	'-fd-lines-as-*'
+	'-fdec*'
+	'-fdefault-*'
+	'-fdollar-ok'
+	'-ffixed-*'
+	'-ffree-*'
+	'-fimplicit-none'
+	'-finteger-4-integer-8'
+	'-fmax-identifier-length*'
+	'-fmodule-private'
+	'-fno-range-check'
+	'-freal-*'
+	'-ftest-forall-temp'
+	'-std=f*'
+	'-std=gnu'
+	'-std=legacy'
+)
+
+FLAG_FILTER_CXX_FORTRAN=(
+	'-std=c1*'
+	'-std=c8*'
+	'-std=c9*'
+	'-std=gnu1*'
+	'-std=gnu8*'
+	'-std=gnu9*'
+	'-std=iso*'
+)
+
 FLAG_FILTER_C_FORTRAN=(
-	'-fvisibility-inlines-hidden'
+	'-fabi-*'
+	'-faligned-new'
+	'-fcheck-new'
+	'-fconcepts'
+	'-fconstexpr-*'
+	'-fdeduce-init-list'
+	'-fext*'
+	'-ffor-scope'
+	'-ffriend-injection'
+	'-fms-extensions'
+	'-fnew-inheriting-ctors'
+	'-fnew-ttp-matching'
+	'-fno-access-control'
+	'-fno-elide-constructors'
 	'-fno-enforce-eh-specs'
+	'-fno-extern-tls-init'
+	'-fno-for-scope'
+	'-fno-gnu-keywords'
+	'-fno-implement-inlines'
+	'-fno-implicit-*'
+	'-fno-nonansi-builtins'
+	'-fno-operator-names'
+	'-fno-optional-diags'
+	'-fno-pretty-templates'
+	'-fno-rtti'
+	'-fno-threadsafe-statics'
+	'-fno-use-cxa-get-exception-ptr'
+	'-fno-weak'
+	'-fnothrow-opt'
+	'-fpermissive'
+	'-frepo'
+	'-fsized-deallocation'
+	'-fstrict-enums'
+	'-fstrong-eval-order'
+	'-ftemplate-*'
+	'-fuse-cxa-atexit'
+	'-fvisibility-*'
+	'-nostdinc++'
+	'-std=c++*'
+	'-std=gnu++*'
+	'-Wabi*'
+	'-Wctor-dtor-privacy'
+	'-Wdelete-non-virtual-dtor'
+	'-Weffc++'
+	'-Wliteral-suffix'
+	'-Wlto-type-mismatch'
+	'-Wmultiple-inheritance'
+	'-Wnamespaces'
+	'-Wno-narrowing'
+	'-Wno-non-template-friend'
+	'-Wno-pmf-conversions'
+	'-Wno-terminate'
+	'-Wnoexcept'
+	'-Wnon-virtual-dtor'
+	'-Wold-style-cast'
+	'-Woverloaded-virtual'
+	'-Wregister'
+	'-Wreorder'
+	'-Wsign-promo'
+	'-Wstrict-null-sentinel'
+	'-Wtemplates'
+	'-Wvirtual-inheritance'
 )
 
 FLAG_FILTER_CFLAGS=(
@@ -13,7 +105,29 @@ FLAG_FILTER_CXXFLAGS=(
 )
 
 FLAG_FILTER_FORTRAN=(
+	'-ansi'
+	'-fallow-parameterless-variadic-functions'
+	'-fcilkplus'
+	'-fcond-mismatch'
 	'-fdirectives-only'
+	'-ffreestanding'
+	'-fgimple'
+	'-fgnu-tm'
+	'-fgnu89-inline'
+	'-fhosted'
+	'-flax-vector-conversions'
+	'-fms-extensions'
+	'-fno-asm'
+	'-fno-builtin*'
+	'-fno-signed-bitfields'
+	'-fno-unsigned-bitfields'
+	'-fpermitted-flt-eval-methods*'
+	'-fplan9-extensions'
+	'-fsigned-*'
+	'-fsso-struct*'
+	'-funsigned-*'
+	'-Wformat=1'
+	'-Wformat-security'
 )
 
 FLAG_FILTER_FFLAGS=(
@@ -49,7 +163,6 @@ FLAG_FILTER_NONGNU=(
 	'-fsched*'
 	'-fsection-anchors'
 	'-ftree*'
-	'-ftree-vectorize*'
 	'-funsafe-loop*'
 	'-fuse-linker-plugin'
 	'-fvect-cost-model'
@@ -486,18 +599,20 @@ FlagSetFlags() {
 	BashrcdTrue $NOFCFLAGS || FCFLAGS=$FFLAGS
 	BashrcdTrue $NOF77FLAGS || F77FLAGS=$FFLAGS
 	BashrcdTrue $NOFILTER_CXXFLAGS || FlagSub CXXFLAGS \
+		"${FLAG_FILTER_C_CXX[@]}" "${FLAG_FILTER_CXX_FORTRAN[@]}" \
 		"${FLAG_FILTER_CXXFLAGS[@]}"
 	BashrcdTrue $NOFILTER_CFLAGS || FlagSub CFLAGS \
-		"${FLAG_FILTER_C_FORTRAN[@]}" "${FLAG_FILTER_CFLAGS[@]}"
+		"${FLAG_FILTER_C_CXX[@]}" "${FLAG_FILTER_C_FORTRAN[@]}" \
+		"${FLAG_FILTER_CFLAGS[@]}"
 	BashrcdTrue $NOFILTER_FFLAGS || FlagSub FFLAGS \
-		"${FLAG_FILTER_C_FORTRAN[@]}" "${FLAG_FILTER_FORTRAN[@]}" \
-		"${FLAG_FILTER_FFLAGS[@]}"
+		"${FLAG_FILTER_C_FORTRAN[@]}" "${FLAG_FILTER_CXX_FORTRAN[@]}" \
+		"${FLAG_FILTER_FORTRAN[@]}" "${FLAG_FILTER_FFLAGS[@]}"
 	BashrcdTrue $NOFILTER_FCFLAGS || FlagSub FCFLAGS \
-		"${FLAG_FILTER_C_FORTRAN[@]}" "${FLAG_FILTER_FORTRAN[@]}" \
-		"${FLAG_FILTER_FCFLAGS[@]}"
+		"${FLAG_FILTER_C_FORTRAN[@]}" "${FLAG_FILTER_CXX_FORTRAN[@]}" \
+		"${FLAG_FILTER_FORTRAN[@]}" "${FLAG_FILTER_FCFLAGS[@]}"
 	BashrcdTrue $NOFILTER_F77FLAGS || FlagSub FCFLAGS \
-		"${FLAG_FILTER_C_FORTRAN[@]}" "${FLAG_FILTER_FORTRAN[@]}" \
-		"${FLAG_FILTER_F77FLAGS[@]}"
+		"${FLAG_FILTER_C_FORTRAN[@]}" "${FLAG_FILTER_CXX_FORTRAN[@]}" \
+		"${FLAG_FILTER_FORTRAN[@]}" "${FLAG_FILTER_F77LAGS[@]}"
 	unset OPTCFLAGS OPTCXXFLAGS OPTCPPFLAGS OPTLDFLAGS
 	unset NOLDOPT NOLDADD NOCOPT NOCXXOPT NOFFLAGS NOFCFLAGS NOF77FLAGS
 	unset NOFILTER_CXXFLAGS NOFILTER_CFLAGS
