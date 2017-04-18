@@ -295,30 +295,65 @@ NOF77FLAGS
 	If this variable is false, then the FFLAGS finally calculated
 	will also be used as F77FLAGS
 NOFILTER_CXXFLAGS
-	If this variable is false, then CXXFLAGS from the bash array
-	FLAGS_FILTER_CXXFLAGS
-	are removed. This array contains flags known to be invalid for C++.
+	If this variable is false, then CXXFLAGS from the bash arrays
+	FLAG_FILTER_C_CXX FLAG_FILTER_CXX_FORTRAN FLAG_FILTER_CXXFLAGS
+	are removed.
 NOFILTER_CFLAGS
 	If this variable is false, then CFLAGS from the bash arrays
-	FLAGS_FILTER_C_FORTRAN FLAGS_FILTER_CFLAGS
-	are removed. These arrays contain flags known to be invalid for
-	C or Fortran, or only for C, respectively.
+	FLAG_FILTER_C_CXX FLAG_FILTER_C_FORTRAN FLAG_FILTER_CFLAGS
+	are removed.
 NOFILTER_FFLAGS
 	If this variable is false, then FFLAGS from the bash arrays
-	FLAGS_FILTER_C_FORTRAN FLAGS_FILTER_FORTRAN FLAGS_FILTER_FFLAGS
-	are removed. These arrays contain flags known to be invalid for
-	C or Fortran, only for Fortran, or only for FFLAGS, respectively.
+	FLAG_FILTER_C_FORTRAN FLAG_FILTER_CXX_FORTRAN
+	FLAG_FILTER_FORTRAN FLAG_FILTER_FFLAGS
+	are removed.
 NOFILTER_FCFLAGS
 	If this variable is false, then FFLAGS from the bash arrays
-	FLAGS_FILTER_C_FORTRAN FLAGS_FILTER_FORTRAN FLAGS_FILTER_FCFLAGS
-	are removed. These arrays contain flags known to be invalid for
-	C or Fortran, only for Fortran, or only for FCFLAGS, respectively.
+	FLAG_FILTER_C_FORTRAN FLAG_FILTER_CXX_FORTRAN
+	FLAG_FILTER_FORTRAN FLAG_FILTER_FCLAGS
+	are removed.
 NOFILTER_F77FLAGS
 	If this variable is false, then FFLAGS from the bash arrays
-	FLAGS_FILTER_C_FORTRAN FLAGS_FILTER_FORTRAN FLAGS_FILTER_F77FLAGS
-	are removed. These arrays contain flags known to be invalid for
-	C or Fortran, only for Fortran, or only for F77FLAGS, respectively.
+	FLAG_FILTER_C_FORTRAN FLAG_FILTER_CXX_FORTRAN
+	FLAG_FILTER_FORTRAN FLAG_FILTER_F77FLAGS
+	are removed.
 
+There are several bash arrays used for filtering flags of some *FLAGS
+variables. The entries of these arrays can contain wildcards.
+The arrays are initialized to values which are known to be invalid for
+the corresponding *FLAGS variables.
+
+FLAG_FILTER_C_CXX
+	Flags from this variable are filtered from CFLAGS and CXXFLAGS
+	unless the corresponding NOFILTER_* variable is true
+FLAG_FILTER_CXX_FORTRAN
+	Flags from this variable are filtered from CXXFLAGS, FFLAGS, FCFLAGS,
+	and F77FLAGS unless the corresponding NOFILTER_* variable is true
+FLAG_FILTER_C_FORTRAN
+	Flags from this variable are filtered from CFLAGS, FFLAGS, FCFLAGS, and
+	F77FLAGS unless the corresponding NOFILTER_* variable is true
+FLAG_FILTER_CFLAGS
+	Flags from this variable are filtered from CFLAGS unless
+	NOFILTER_CFLAGS is true
+FLAG_FILTER_CXXFLAGS
+	Flags from this variable are filtered from CXXFLAGS unless
+	NOFILTER_CXXFLAGS is true
+FLAG_FILTER_FORTRAN
+	Flags from this variable are filtered from FFLAGS, FCFLAGS, and
+	F77FLAGS unless the corresponding NOFILTER_* variable is set
+FLAG_FILTER_FFLAGS
+	Flags from this variable are filtered from FFLAGS unless
+	NOFILTER_FFLAGS is true
+FLAG_FILTER_FCFLAGS
+	Flags from this variable are filtered from FCFLAGS unless
+	NOFILTER_FCFLAGS is true
+FLAG_FILTER_F77FLAGS
+	Flags from this variable are filtered from F77FLAGS unless
+	NOFILTER_F77FLAGS is true
+FLAG_FILTER_NONGNU
+	Flags from this variable are filtered if USE_NONGNU is true
+FLAG_FILTER_GNU
+	Flags from this variable are filtered if USE_NONGNU is false
 
 Some motivation for the above commands/variables:
 
