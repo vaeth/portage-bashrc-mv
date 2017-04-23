@@ -126,8 +126,7 @@ FLAG_FILTER_FORTRAN=(
 	'-fsigned-*'
 	'-fsso-struct*'
 	'-funsigned-*'
-	'-Wformat=1'
-	'-Wformat-security'
+	'-Wformat*'
 )
 
 FLAG_FILTER_FFLAGS=(
@@ -174,6 +173,7 @@ FLAG_FILTER_NONGNU=(
 FLAG_FILTER_GNU=(
 	'-emit-llvm'
 	'-flto=thin'
+	'-fopenmp=*'
 	'-fsanitize=cfi'
 	'-fsanitize=safe-stack'
 	'-mllvm'
