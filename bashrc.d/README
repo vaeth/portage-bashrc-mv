@@ -60,8 +60,8 @@ The variable $EBUILD_PHASE contains the currently executed phase.
 
 You can find out which phases are called by portage by setting the variable
 $BASHCRD_DEBUG to true (Boolean values are handled in shell variables as
-follows: False means unset, empty value "", "n", "no", "false", "off", or "0",
-case being ignored; everything else is true).
+follows: False means unset, empty value, -, 0, starting with f(alse), n(o),
+of(f) (case being ignored); everything else means true).
 Since there is global variable scope for which we must avoid collision,
 the following name conventions are used: All variables and function names
 are prefixed by the (letter parts of the) file names.

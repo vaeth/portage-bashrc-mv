@@ -3,7 +3,7 @@
 
 BashrcdTrue() {
 	case ${1:-n} in
-	[nNfF0-]*|[oO][fF]*)
+	[nNfF]*|[oO][fF]*|0|-)
 		return 1;;
 	esac
 	:
