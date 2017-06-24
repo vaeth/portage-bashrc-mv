@@ -127,6 +127,7 @@ FLAG_FILTER_FORTRAN=(
 	'-fsso-struct*'
 	'-funsigned-*'
 	'-Wformat*'
+	'-Wchkp'
 )
 
 FLAG_FILTER_FFLAGS=(
