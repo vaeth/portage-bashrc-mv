@@ -200,9 +200,10 @@ C*FLAGS/=/foo/bar
 	Adds to CFLAGS, CXXFLAGS (currently the same as C*FLAGS+=...)
 *FLAGS-=...
 	Removes from CPPFLAGS, CFLAGS, CXXFLAGS, LDFLAGS,
-	OPTCPPFLAGS, OPTCFLAGS,	OPTCXXFLAGS, OPTLDFLAGS
+	OPTCPPFLAGS, OPTCFLAGS, OPTCXXFLAGS, OPTLDFLAGS,
+	FFLAGS, FCFLAGS, F77FLAGS
 *FLAGS/=/foo/bar
-	Similarly to *FLAGS+=foo *FLAGS-=bar
+	Similar to *FLAGS+=foo *FLAGS-=bar
 NOC*=...
 	means the same as
 NOC*OPT=...

@@ -298,12 +298,18 @@ FlagSubAllFlags() {
 	FlagSubCFlags "$@"
 	FlagSub LDFLAGS "$@"
 	FlagSub OPTLDFLAGS "$@"
+	FlagSub FFLAGS "$@"
+	FlagSub FCLAGS "$@"
+	FlagSub F77LAGS "$@"
 }
 
 FlagReplaceAllFlags() {
 	FlagReplaceCFlags "$@"
 	FlagSub LDFLAGS "$1"
 	FlagSub OPTLDFLAGS "$1"
+	FlagSub FFLAGS "$1"
+	FlagSub FCLAGS "$1"
+	FlagSub F77FLAGS "$1"
 }
 
 FlagSetAllFlags() {
@@ -538,6 +544,7 @@ FlagSetUseNonGNU() {
 FlagSetNonGNU() {
 	: ${NOLDADD:=1}
 	FlagSubAllFlags "${FLAG_FILTER_NONGNU[@]}"
+	FlagReplaceAllFlags '-fstack-check*' '-fstack-check'
 	# FlagAddCFlags '-flto' '-emit-llvm'
 }
 
