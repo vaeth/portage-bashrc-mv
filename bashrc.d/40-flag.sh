@@ -350,7 +350,7 @@ FlagExecute() {
 		'-'*)
 			FlagAddAllFlags "$ex";;
 		'+flto*')
-			FlagSubAllFlags '-flto*' '-fuse-linker-plugin' '-fwhole-program' '-emit-llvm';;
+			FlagSubAllFlags '-flto*' '-fuse-linker-plugin' '-emit-llvm';;
 		'+'*)
 			FlagSubAllFlags "-${ex#+}";;
 		'C*FLAGS-='*)
