@@ -281,7 +281,7 @@ FlagReplaceCFlags() {
 	FlagSub OPTCPPFLAGS "$1"
 }
 
-FlagSetallcflags() {
+FlagSetAllCFlags() {
 	FlagSet CFLAGS "$@"
 	CXXFLAGS=$CFLAGS
 	CPPFLAGS=
@@ -313,7 +313,7 @@ FlagReplaceAllFlags() {
 }
 
 FlagSetAllFlags() {
-	FlagSetallcflags "$@"
+	FlagSetAllCFlags "$@"
 	LDFLAGS=
 	OPTLDFLAGS=
 }
@@ -358,7 +358,7 @@ FlagExecute() {
 		'C*FLAGS+='*)
 			FlagEval FlagAddCFlags ${ex#*+=};;
 		'C*FLAGS='*)
-			FlagEval FlagSetallcflags "${ex#*=}";;
+			FlagEval FlagSetAllCFlags "${ex#*=}";;
 		'C*FLAGS/=/'*/*)
 			ex=${ex%/}
 			ex=${ex#*/=/}
@@ -465,16 +465,6 @@ FlagMask() {
 	FlagMask "$@"
 }
 
-FlagScanLine() {
-	local match
-	[ $# -lt 2 ] && return
-	FlagMask "$1" || return 0
-	match=$1
-	shift
-	BashrcdEcho "$scanfile -> $match: $*"
-	FlagExecute "$@"
-}
-
 FlagParseLine() {
 	local scanp scanl scansaveifs
 	scanl=$2
@@ -492,22 +482,27 @@ FlagParseLine() {
 	done
 	scanp=${scanl%%[[:space:]]*}
 	scanl=${scanl#*[[:space:]]}
+	[ -n "${scanl:++}" ] || return 0
+	FlagMask "$scanp" || return 0
 	scansaveifs=$IFS
 	IFS=$1
-	FlagEval FlagScanLine \"\$scanp\" "$scanl"
+	BashrcdEcho "$scanfile -> $scanp: $scanl"
+	FlagEval FlagExecute $scanl
 	IFS=$scansaveifs
 }
 
 FlagScanFiles() {
 	local scanfile scanl oldifs scanifs
 	scanifs=$IFS
+	IFS=
 	for scanfile
 	do	[ -z "${scanfile:++}" ] && continue
 		test -r "$scanfile" || continue
-		while IFS= read -r scanl
+		while read -r scanl
 		do	FlagParseLine "$scanifs" "$scanl"
 		done <"$scanfile"
 	done
+	IFS=$scanifs
 }
 
 FlagScanDir() {
