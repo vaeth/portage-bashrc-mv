@@ -180,7 +180,7 @@ FLAG_FILTER_GNU=(
 	'-fsanitize=cfi'
 	'-fsanitize=safe-stack'
 	'-mllvm'
-	'-mretpoline'
+	'-mretpoline*'
 	'-polly*'
 )
 
