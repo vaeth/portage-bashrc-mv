@@ -168,6 +168,8 @@ FLAG_FILTER_NONGNU=(
 	'-fvect-cost-model'
 	'-fweb'
 	'-fwhole-program'
+	'-mfunction-return*'
+	'-mindirect-branch*'
 	'-mvectorize*'
 )
 
@@ -178,6 +180,7 @@ FLAG_FILTER_GNU=(
 	'-fsanitize=cfi'
 	'-fsanitize=safe-stack'
 	'-mllvm'
+	'-mretpoline'
 	'-polly*'
 )
 
