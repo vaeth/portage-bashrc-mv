@@ -171,6 +171,7 @@ FLAG_FILTER_NONGNU=(
 	'-mfunction-return*'
 	'-mindirect-branch*'
 	'-mvectorize*'
+	'-Wl,-z,retpolineplt'
 )
 
 FLAG_FILTER_GNU=(
