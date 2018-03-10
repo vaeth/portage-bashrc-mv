@@ -535,7 +535,7 @@ FlagScanDir() {
 FlagSetUseNonGNU() {
 	case $CC$CXX in
 	*clang*)
-		return;;
+		return 0;;
 	esac
 	return 1
 }
@@ -558,7 +558,10 @@ FlagSetFlags() {
 	: ${PGO_DIR:=$PGO_PARENT/$CATEGORY:$P}
 	FlagScanDir "${PORTAGE_CONFIGROOT%/}/etc/portage/package.cflags"
 	[ -z "${USE_NONGNU++}" ] && FlagSetUseNonGNU && USE_NONGNU=1
-	BashrcdTrue $USE_NONGNU && FlagSetNonGNU || FlagSetGNU
+	if BashrcdTrue "${USE_NONGNU-}"
+	then	FlagSetNonGNU
+	else	FlagSetGNU
+	fi
 	if [ -n "$FLAG_ADD" ]
 	then	BashrcdEcho "FLAG_ADD: $FLAG_ADD"
 		FlagEval FlagExecute "$FLAG_ADD"
