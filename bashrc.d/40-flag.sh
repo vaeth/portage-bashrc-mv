@@ -154,6 +154,7 @@ FLAG_FILTER_NONGNU=(
 	'-fmodulo*'
 	'-fno-enforce-eh-specs'
 	'-fno-ident'
+	'-fno-plt' # causes various runtime segfaults for clang:6 compiled code
 	'-fno-semantic-interposition'
 	'-fnothrow-opt'
 	'-fpredictive-commoning'
