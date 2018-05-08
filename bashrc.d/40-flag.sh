@@ -140,6 +140,7 @@ FLAG_FILTER_F77FLAGS=(
 )
 
 FLAG_FILTER_NONGNU=(
+	'-fcf-protection*'
 	'-fdevirtualize-speculatively'
 	'-fdirectives-only'
 	'-fgcse*'
@@ -163,6 +164,7 @@ FLAG_FILTER_NONGNU=(
 	'-frerun-cse-after-loop'
 	'-fsched*'
 	'-fsection-anchors'
+	'-fstack-clash-protection'
 	'-ftree*'
 	'-funsafe-loop*'
 	'-fuse-linker-plugin'
