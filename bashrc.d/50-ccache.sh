@@ -12,6 +12,8 @@ CcacheSetup() {
 	if BashrcdTrue $USE_NONGNU && BashrcdTrue $CCACHE_CPP2_OPTIONAL
 	then	: ${CCACHE_CPP2=true}
 	fi
+	# Default to NOHASHDIR unless contrary is specified
+	BashrcdTrue "${CCACHE_HASHDIR-}" || CCACHE_NOHASHDIR=true
 	for i in ${!CCACHE_*}
 	do	if eval "BashrcdTrue \$$i"
 		then	eval BASHRCD_$i=\$$i

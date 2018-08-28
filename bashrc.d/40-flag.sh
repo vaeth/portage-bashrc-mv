@@ -174,18 +174,20 @@ FLAG_FILTER_NONGNU=(
 	'-mfunction-return*'
 	'-mindirect-branch*'
 	'-mvectorize*'
-	'-Wl,-z,retpolineplt'
+	'-Wl,-z,retpolineplt' # does not work, currently
 )
 
 FLAG_FILTER_GNU=(
 	'-emit-llvm'
 	'-flto=thin'
 	'-fopenmp=*'
+	'-frewrite-includes'
 	'-fsanitize=cfi'
 	'-fsanitize=safe-stack'
 	'-mllvm'
 	'-mretpoline*'
 	'-polly*'
+	'-Wl,-z,retpolineplt'
 )
 
 FlagEval() {
