@@ -1,3 +1,33 @@
+portage-bashrc-mv-15.0
+----------------------
+Support MESONDEDUP:
+>=meson-0.47 had the insane idea to forbid the user to specify flags
+simultaneously in e.g. LDFLAGS and CFLAGS.
+Although the same flags must necessarily be specified in some cases during
+compile and link phase, meson insists to have the sole decision about this,
+thus breaking with *FLAGS meant to be used also for other build systems.
+As a workaround, portage-bashrc-mv now supports a variable MESONDEDUP:
+If this variable is true then all flags from LDFLAGS which can occur
+already in some other compile phase are removed.
+
+
+portage-bashrc-mv-14.4
+----------------------
+unless CCACHE_HASHDIR is set to true, CCACHE_NOHASHDIR is now set.
+This effectively means that the ccache default of that variable is inverted.
+This should increase the number of ccache hits in average although in some
+cases it might cause issues: Try setting CCACHE_HASHDIR=1 in case of
+miscompilations with ccache.
+
+
+portage-bashrc-mv-14.0
+----------------------
+Improve support/customization for filtering *FLAGS depending on the compiler.
+
+
+portage-bashrc-mv-13.0
+----------------------
+
 Important!
 
 If you use >=portage-2.2.15 and have previously used <portage-bashrc-mv-13

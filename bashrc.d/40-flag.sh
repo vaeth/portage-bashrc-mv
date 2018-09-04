@@ -199,19 +199,25 @@ FlagEval() {
 	esac
 }
 
-FlagAdd() {
-	local addres addf addvar
+FlagNodupAdd() {
+	local addres addf addvar dups
+	dups=$1
+	shift
 	addvar=$1
 	shift
 	eval addres=\$$addvar
 	for addf
-	do	case " $addres  " in
+	do	case " $addres $dups " in
 		*[[:space:]]"$addf"[[:space:]]*)
 			continue;;
 		esac
 		addres=$addres${addres:+\ }$addf
 	done
 	eval $addvar=\$addres
+}
+
+FlagAdd() {
+	FlagNodupAdd '' "$@"
 }
 
 FlagSub() {
@@ -410,8 +416,7 @@ FlagExecute() {
 			NOCXXOPT=1
 			NOCPPOPT=1
 			NOLDOPT=1
-			NOLDADD=1
-			NOCADD=1
+			MESONDEDUP=1
 			LDFLAGS=
 			CONFIG_SITE=
 			NOLAFILEREMOVE=1
@@ -556,6 +561,13 @@ FlagSetGNU() {
 	FlagSubAllFlags "${FLAG_FILTER_GNU[@]}"
 }
 
+FlagMesonDedup() {
+	local newld=
+	FlagNodupAdd "$CFLAGS $CXXFLAGS $CPPFLAGS $FFLAGS $FCFLAGS $F77FLAGS" \
+		newld $LDFLAGS
+	LDFLAGS=$newld
+}
+
 FlagSetFlags() {
 	local ld i
 	ld=
@@ -601,11 +613,12 @@ FlagSetFlags() {
 	else	: ${KEEPPGO:=:}
 	fi
 	BashrcdTrue $NOLDOPT || FlagAdd LDFLAGS $OPTLDFLAGS
-	BashrcdTrue $NOCADD || case " $LDFLAGS $CFLAGS $CXXFLAGS" in
+	BashrcdTrue $NOCADD || BashrcdTrue $MESONDEDUP || \
+		case " $LDFLAGS $CFLAGS $CXXFLAGS" in
 		*[[:space:]]'-flto'*)
 			ld="$CFLAGS $CXXFLAGS";;
 		esac
-	BashrcdTrue $NOLDADD || FlagAddCFlags $LDFLAGS
+	BashrcdTrue $NOLDADD || BashrcdTrue $MESONDEDUP || FlagAddCFlags $LDFLAGS
 	FlagAdd LDFLAGS $ld
 	BashrcdTrue $NOCOPT || FlagAdd CFLAGS $OPTCFLAGS
 	BashrcdTrue $NOCXXOPT || FlagAdd CXXFLAGS $OPTCXXFLAGS
@@ -628,6 +641,7 @@ FlagSetFlags() {
 	BashrcdTrue $NOFILTER_F77FLAGS || FlagSub FCFLAGS \
 		"${FLAG_FILTER_C_FORTRAN[@]}" "${FLAG_FILTER_CXX_FORTRAN[@]}" \
 		"${FLAG_FILTER_FORTRAN[@]}" "${FLAG_FILTER_F77LAGS[@]}"
+	! BashrcdTrue $MESONDEDUP || FlagMesonDedup
 	unset OPTCFLAGS OPTCXXFLAGS OPTCPPFLAGS OPTLDFLAGS
 	unset NOLDOPT NOLDADD NOCOPT NOCXXOPT NOFFLAGS NOFCFLAGS NOF77FLAGS
 	unset NOFILTER_CXXFLAGS NOFILTER_CFLAGS

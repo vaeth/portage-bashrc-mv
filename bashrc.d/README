@@ -221,7 +221,7 @@ NO*=...
 	NOFCFLAGS, NOF77FLAGS (see below).
 SAFE
 	This is a shortcut for
-		NO*OPT=1 NOLDADD=1 NOCADD=1 LDFLAGS=''
+		NO*OPT=1 MESONDEDUP=1 LDFLAGS=''
 		CONFIG_SITE='' NOLAFILEREMOVE=1
 		'unset CMAKE_MAKEFILE_GENERATOR'
 	Note that this is the only command which modifies the variables
@@ -281,11 +281,19 @@ NOCPPOPT
 	to the CPPFLAGS
 NOLDADD
 	If this variable is false, the LDFLAGS variable finally
-	calculated will be added to the CFLAGS and CXXFLAGS
+	calculated will be added to the CFLAGS and CXXFLAGS.
+	This variable is considered as true if MESONDEDUP is true.
 NOCADD
 	If this variable is false and some of CFLAGS, CXXFLAGS, or LDFLAGS
 	contains -flto* then the CFLAGS and CXXFLAGS variables finally
 	calculated will be added to the LDFLAGS.
+	This variable is considered as true if MESONDEDUP is true.
+MESONDEDUP
+	If this variable is true, one has the behaviour of NOLDADD and NOCADD,
+	and moreover, all entries of the finally calculated LDFLAGS which occur
+	already in one of CPPFLAGS, CFLAGS, CXXFLAGS, FFLAGS, FCFLAGS, F77FLAGS
+	are removed. This is to avoid the >=meson-0.47 insanity to know better
+	than the user when some values should be duplicated for e.g. -flto*
 NOFFLAGS
 	If this variable is false, then the CFLAGS finally calculated
 	will also be used as FFLAGS
