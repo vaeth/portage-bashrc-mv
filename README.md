@@ -19,7 +19,6 @@ gentoo portage system and serves two purposes.
      Moreover, pgo (profile-guided optimization) is supported.
    - Support for removing undesired `.la` files before installation
    - Support for removing undesired locales before installation
-     (similar to `app-admin/localepurge`, but before installation).
    - Support for `CCACHE_*` variables.
    - Output of time information and title bar if
      `app-portage/portage-utils`and `app-shells/runtitle`

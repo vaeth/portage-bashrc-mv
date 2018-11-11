@@ -1,7 +1,3 @@
-#!/bin/bash
-# (C) Martin V\"ath <martin@mvath.de>
-
-ALL_LOCALES="
 aa
 af
 af_ZA
@@ -348,64 +344,3 @@ zh_TW.Big5
 zh_TW.EUC-TW
 zh_TW.UTF-8
 zu
-"
-
-LocalePurgeNokeep() {
-	local locale_keep
-	for locale_keep in $KEEP_LOCALES
-	do	case $1 in
-		$locale_keep)
-			return 1;;
-		esac
-	done
-}
-
-LocalePurgeMain() {
-	local locale_list locale_item locale_cmd
-	locale_list=
-	for locale_item in $ALL_LOCALES ${ALL_LOCALES_ADD-}
-	do	[ -n "$locale_item" ] && LocalePurgeNokeep "$locale_item" && \
-			locale_list=$locale_list' '$locale_item
-	done
-	locale_cmd='for d
-do	for l in $locale_list
-do	if test -d "$d/$l$k"
-then	rm -rvf -- "$d/$l"
-fi
-done
-done'
-	export locale_list
-	shell=`command -v sh` || shell=
-	: ${shell:=/bin/sh}
-	if BashrcdTrue $LOCALEPURGE
-	then	einfo 'removing undesired locales'
-		find "$ED" -name locale -type d \
-			-exec "$shell" -c "k='/LC_MESSAGES'
-$locale_cmd" sh '{}' '+'
-	fi
-	if BashrcdTrue $MANPURGE
-	then	einfo 'removing undesired manpages'
-		find "$ED" -name man -type d \
-			-exec "$shell" -c "k=
-$locale_cmd" sh '{}' '+'
-	fi
-	unset locale_list
-}
-
-LocalePurge() {
-	if BashrcdTrue $NOLOCALEPURGE || {
-		! BashrcdTrue $LOCALEPURGE && ! BashrcdTrue $MANPURGE
-	} || [ -z "${KEEP_LOCALES++}" ]
-	then	return 0
-	fi
-	case $- in
-	*f*)
-		LocalePurgeMain;;
-	*)
-		set -f
-		LocalePurgeMain
-		set +f;;
-	esac
-}
-
-BashrcdPhase preinst LocalePurge

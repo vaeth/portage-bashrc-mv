@@ -20,7 +20,6 @@ Moreover, pgo (profile-guided optimization) is supported.
 (b) Support for removing undesired .la files before installation
 
 (c) Support for removing undesired locales before installation
-(similar to app-admin/localepurge, but before installation).
 
 (d) Support for CCACHE_* variables.
 
@@ -468,13 +467,25 @@ Note that the variable NOLAFILEREMOVE can be set per package by using (a).
 (c) Support for removing undesired locales before installation.
 This is done in /etc/portage/bashrc.d/*-localepurge.sh:
 
-If app-admin/localepurge is installed and configured and the variable
+If
 	NOLOCALEPURGE
-is false, an action similar to localepurge is performed which is similar
-to the localepurge command but happens before installation
+is false and one of
+	LOCALEPURGE
+	MANPURGE
+is true and
+	KEEP_LOCALES
+is defined, then the latter variable defines a list of locales or manpages
+to keep: All other locales/manpages are removed before installation
 (so that the removed files are not recorded in portage's database).
-
-Note that the variable NOLOCALEPURGE can be set per package by using (a).
+The variable KEEP_LOCALES supports wildcards, e.g. KEEP_LOCALES="en*".
+In particular, setting KEEP_LOCALES="*" is the same as not setting it since
+all locales and manpages will be kept.
+In contrary, setting KEEP_LOCALES="" removes all locales and manpages
+(if LOCALEPURGE and MANNPURGE are true, respectively).
+If you observe that a language is not filtered, you can add it to the variable
+	ALL_LOCALES_ADD
+(and perhaps file a bug to add the language to the defaults in future).
+Note that all of the above variables can be set per package by using (a).
 
 (d) Support for CCACHE_* variables:
 
