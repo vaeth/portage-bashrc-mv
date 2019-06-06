@@ -4,7 +4,7 @@
 QlopSetup() {
 	local num sec hour min date
 	command -v qlop >/dev/null 2>&1 || return 0
-	qlop -gH -- "$CATEGORY/$PN"
+	qlop -aH -- "$CATEGORY/$PN"
 	qlop -tH -- "$CATEGORY/$PN"
 	command -v title >/dev/null 2>&1 || return 0
 	num=$(tail -n1 /var/log/emerge.log | \
@@ -14,8 +14,7 @@ QlopSetup() {
 		title "emerge $date $PN"
 		return
 	}
-	sec=$(qlop -tC -- "$CATEGORY/$PN" | \
-		sed -e 's/^.* \([0-9]*\) second.*$/\1/') \
+	sec=$(qlop -tCM -- "$CATEGORY/$PN" | sed -e 's/.* \(\d.*\)*/\1/;q') \
 	&& [ -n "$sec" ] || {
 		date=$(date +%T)
 		title "emerge $date $num $PN"

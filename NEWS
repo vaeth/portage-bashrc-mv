@@ -1,3 +1,14 @@
+portage-bashrc-mv-17.0
+----------------------
+No longer work with <app-portage/portage-utils-0.74-r1, but support instead
+>=app-portage/portage-utils-0.80_pre20190605.
+
+
+portage-bashrc-mv-16.0
+----------------------
+New localepurge configuration; ignore that of app-admin/localepurge
+
+
 portage-bashrc-mv-15.0
 ----------------------
 Support MESONDEDUP:
