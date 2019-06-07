@@ -14,7 +14,8 @@ QlopSetup() {
 		title "emerge $date $PN"
 		return
 	}
-	sec=$(qlop -tCM -- "$CATEGORY/$PN" | sed -e 's/.* \(\d.*\)*/\1/;q') \
+	sec=$(qlop -tCM -- "$CATEGORY/$PN" | \
+		sed -ne '/ [0-9][0-9]*$/{s/^.* \([0-9][0-9]*\)$/\1/;p;q}') \
 	&& [ -n "$sec" ] || {
 		date=$(date +%T)
 		title "emerge $date $num $PN"

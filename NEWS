@@ -1,3 +1,8 @@
+portage-bashrc-mv-17.1
+----------------------
+Fix of regression from 17.0 when parsing time
+
+
 portage-bashrc-mv-17.0
 ----------------------
 No longer work with <app-portage/portage-utils-0.74-r1, but support instead
