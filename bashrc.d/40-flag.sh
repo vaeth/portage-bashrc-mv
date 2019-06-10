@@ -141,6 +141,7 @@ FLAG_FILTER_F77FLAGS=(
 
 FLAG_FILTER_NONGNU=(
 	'-fcf-protection*'
+	'-fdevirtualize-at-ltrans'
 	'-fdevirtualize-speculatively'
 	'-fdirectives-only'
 	'-fgcse*'
