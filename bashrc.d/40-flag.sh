@@ -153,6 +153,7 @@ FLAG_FILTER_NONGNU=(
 	'-fivopts'
 	'-floop*'
 	'-flto=[0-9]*'
+	'-flto=jobserver'
 	'-flto-partition=*'
 	'-flto-compression-level=*'
 	'-fmodulo*'
@@ -182,7 +183,8 @@ FLAG_FILTER_NONGNU=(
 
 FLAG_FILTER_GNU=(
 	'-emit-llvm'
-	'-flto=[a-z]*'
+	'-flto=full'
+	'-flto=thin'
 	'-flto-jobs=*'
 	'-fopenmp=*'
 	'-frewrite-includes'
