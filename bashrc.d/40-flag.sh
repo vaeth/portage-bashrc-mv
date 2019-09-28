@@ -31,6 +31,7 @@ FLAG_FILTER_CXX_FORTRAN=(
 	'-std=gnu8*'
 	'-std=gnu9*'
 	'-std=iso*'
+	'-Wimplicit-function-declaration'
 )
 
 FLAG_FILTER_C_FORTRAN=(
