@@ -127,8 +127,8 @@ FLAG_FILTER_FORTRAN=(
 	'-fsigned-*'
 	'-fsso-struct*'
 	'-funsigned-*'
-	'-Wclobbered'
 	'-Wchkp'
+	'-Wclobbered'
 	'-Wformat*'
 	'-Wvolatile-register-var'
 )
