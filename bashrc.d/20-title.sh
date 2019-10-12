@@ -3,7 +3,7 @@
 
 QlopSetup() {
 	local num sec hour min date
-	command -v qlop >/dev/null 2>&1 || return 0
+	[ -z "${NOQLOP:++}" ] && command -v qlop >/dev/null 2>&1 || return 0
 	qlop -aH -- "$CATEGORY/$PN"
 	qlop -tH -- "$CATEGORY/$PN"
 	command -v title >/dev/null 2>&1 || return 0

@@ -1,4 +1,14 @@
 
+portage-bashrc-mv-18.0
+----------------------
+It is now possible to set NOQLOP to skip the qlop feature (e.g. for
+comptability problems with old qlop versions). In addition, the FLAG feature
+is now the first file parsed so that it /etc/portage/package.cflags can be
+used to set this variable.
+The AUTHORS file now finally contains the contributor to 17.3:
+Sorry, I had changed it immediately but had forgotten to commit.
+
+
 portage-bashrc-mv-17.0
 ----------------------
 No longer work with <app-portage/portage-utils-0.74-r1, but support instead

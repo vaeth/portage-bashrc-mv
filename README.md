@@ -1,6 +1,6 @@
 # portage-bashrc-mv
 
-(C) Martin Väth <martin@mvath.de>
+(C) Martin Väth <mvath@google.com>
 The license of this project is the GNU Public License GPL-2.
 
 The portage-bashrc-mv project is meant to be used with the
