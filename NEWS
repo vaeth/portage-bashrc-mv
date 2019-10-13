@@ -1,3 +1,8 @@
+portage-bashrc-mv-18.0
+----------------------
+Support QLOP_COUNT (default 3). Thanks to guitoo for the suggestion,
+see https://github.com/vaeth/portage-bashrc-mv/issues/18
+Also evaluate NOQLOP according to the usual true/false logic.
 
 portage-bashrc-mv-18.0
 ----------------------

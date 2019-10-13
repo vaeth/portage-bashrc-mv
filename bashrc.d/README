@@ -535,7 +535,11 @@ Moreover, if in addition a "title" command is available (e.g. provided by
 app-shells/runtitle from the mv overlay), then this command is used to
 display the expected emerge time of the package as the windows title
 and/or in the hardstatus line, overriding portage's original output.
-To skip this phase, you can set NOQLOP to a nonempty value
+The variable QLOPCOUNT determines in this display the number of last emerges
+taken into account for the average calculation. If this is not a number, then
+all previous emerges are taken into account. If unset or empty, the default is
+QLOPCOUNT=3.
+To skip this phase, you can set NOQLOP to a true value.
 
 
 Recommendations and notes concerning earlier versions of this project:

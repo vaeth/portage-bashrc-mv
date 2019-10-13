@@ -3,9 +3,9 @@
 
 QlopSetup() {
 	local num sec hour min date
-	[ -z "${NOQLOP:++}" ] && command -v qlop >/dev/null 2>&1 || return 0
-	qlop -aH -- "$CATEGORY/$PN"
-	qlop -tH -- "$CATEGORY/$PN"
+	! BashrcdTrue "${NOQLOP-}" && command -v qlop >/dev/null 2>&1 || return 0
+	qlop -amH -- "$CATEGORY/$PN"
+	qlop -tmH -- "$CATEGORY/$PN"
 	command -v title >/dev/null 2>&1 || return 0
 	num=$(tail -n1 /var/log/emerge.log | \
 		sed -e 's/^.*(\([0-9]*\) of \([0-9]*\)).*$/\1|\2/') \
@@ -14,9 +14,19 @@ QlopSetup() {
 		title "emerge $date $PN"
 		return
 	}
-	sec=$(qlop -tCM -- "$CATEGORY/$PN" | \
-		sed -ne '/ [0-9][0-9]*$/{s/^.* \([0-9][0-9]*\)$/\1/;p;q}') \
-	&& [ -n "$sec" ] || {
+	case ${QLOPCOUNT:-1}  in
+	*[!0123456789]*)
+		sec=$(qlop -ACMm -- "$CATEGORY/$PN" | awk \
+'/[[:space:]][0123456789]+$/{a=$NF}
+END{if(a!=""){print a}}');;
+	[123456789]*)
+		sec=$(qlop -tCMm -- "$CATEGORY/$PN" | \
+		awk -v 'i=0' -v 'm=0' -v "n=${QLOPCOUNT:-3}" \
+'/[[:space:]][0123456789]+$/{a[i++]=$NF;if(i>m){m=i};if(i>=n){i=0}}
+END{s=0;for(i=m;i>0;){s+=a[--i]};if(m>0){print int(s/m+1/2)}}');;
+	*)
+		false;;
+	esac && [ -n "$sec" ] || {
 		date=$(date +%T)
 		title "emerge $date $num $PN"
 		return
