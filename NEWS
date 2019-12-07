@@ -1,4 +1,10 @@
-portage-bashrc-mv-18.0
+portage-bashrc-mv-19.0
+----------------------
+Support F*FLAGS, and let *FLAGS= and *FLAGS+= include F*FLAGS.
+You can use C*FLAGS=... LDFLAGS= OPTLDFLAGS= or C*FLAGS+=, respectively,
+if you do not like the latter two.
+
+portage-bashrc-mv-18.1
 ----------------------
 Support QLOP_COUNT (default 3). Thanks to guitoo for the suggestion,
 see https://github.com/vaeth/portage-bashrc-mv/issues/18

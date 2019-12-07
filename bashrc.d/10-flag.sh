@@ -305,7 +305,7 @@ FlagReplaceCFlags() {
 	FlagSub OPTCPPFLAGS "$1"
 }
 
-FlagSetAllCFlags() {
+FlagSetCFlags() {
 	FlagSet CFLAGS "$@"
 	CXXFLAGS=$CFLAGS
 	CPPFLAGS=
@@ -314,30 +314,52 @@ FlagSetAllCFlags() {
 	OPTCPPFLAGS=
 }
 
+FlagAddFFlags() {
+	FlagAdd FFLAGS "$@"
+	FlagAdd FCFLAGS "$@"
+	FlagAdd F77FLAGS "$@"
+}
+
+FlagSubFFlags() {
+	FlagSub FFLAGS "$@"
+	FlagSub FCFLAGS "$@"
+	FlagSub F77FLAGS "$@"
+}
+
+FlagReplaceFFlags() {
+	FlagReplace FFLAGS "$@"
+	FlagReplace FCFLAGS "$@"
+	FlagReplace F77FLAGS "$@"
+}
+
+FlagSetFFlags() {
+	FlagSet FFLAGS "$@"
+	FlagSet FCFLAGS "$@"
+	FlagSet F77FLAGS "$@"
+}
+
 FlagAddAllFlags() {
 	FlagAddCFlags "$@"
+	FlagAddFFlags "$@"
 }
 
 FlagSubAllFlags() {
 	FlagSubCFlags "$@"
+	FlagSubFFlags "$@"
 	FlagSub LDFLAGS "$@"
 	FlagSub OPTLDFLAGS "$@"
-	FlagSub FFLAGS "$@"
-	FlagSub FCLAGS "$@"
-	FlagSub F77LAGS "$@"
 }
 
 FlagReplaceAllFlags() {
 	FlagReplaceCFlags "$@"
+	FlagReplaceFFlags "$@"
 	FlagSub LDFLAGS "$1"
 	FlagSub OPTLDFLAGS "$1"
-	FlagSub FFLAGS "$1"
-	FlagSub FCLAGS "$1"
-	FlagSub F77FLAGS "$1"
 }
 
 FlagSetAllFlags() {
-	FlagSetAllCFlags "$@"
+	FlagSetCFlags "$@"
+	FlagSetFFlags "$@"
 	LDFLAGS=
 	OPTLDFLAGS=
 }
@@ -372,7 +394,7 @@ FlagExecute() {
 			ex=${ex#/}
 			FlagEval FlagReplaceAllFlags "${ex%%/*}" "${ex#*/}";;
 		'-'*)
-			FlagAddAllFlags "$ex";;
+			FlagAddAllCFlags "$ex";;
 		'+flto*')
 			FlagSubAllFlags '-flto*' '-fuse-linker-plugin' '-emit-llvm';;
 		'+'*)
@@ -382,11 +404,21 @@ FlagExecute() {
 		'C*FLAGS+='*)
 			FlagEval FlagAddCFlags ${ex#*+=};;
 		'C*FLAGS='*)
-			FlagEval FlagSetAllCFlags "${ex#*=}";;
+			FlagEval FlagSetCFlags "${ex#*=}";;
 		'C*FLAGS/=/'*/*)
 			ex=${ex%/}
 			ex=${ex#*/=/}
 			FlagEval FlagReplaceCFlags "${ex%%/*}" "${ex#*/}";;
+		'F*FLAGS-='*)
+			FlagEval FlagSubFFlags ${ex#*-=};;
+		'F*FLAGS+='*)
+			FlagEval FlagAddFFlags ${ex#*+=};;
+		'F*FLAGS='*)
+			FlagEval FlagSetFFlags "${ex#*=}";;
+		'F*FLAGS/=/'*/*)
+			ex=${ex%/}
+			ex=${ex#*/=/}
+			FlagEval FlagReplaceFFlags "${ex%%/*}" "${ex#*/}";;
 		'*FLAGS-='*)
 			FlagEval FlagSubAllFlags ${ex#*-=};;
 		'*FLAGS+='*)

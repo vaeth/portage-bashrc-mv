@@ -146,10 +146,13 @@ In addition, the following special COMMANDs are supported:
 -something
 	This adds -something to the CFLAGS and CXXFLAGS variables
 	if this flags was not included in these variables anyway.
+	This is equivalent to C*FLAGS+=-something
 
 +something
 	This removes -something from the variables
-	CFLAGS, CXXFLAGS, CPPFLAGS, OPTCFLAGS, OPTCXXFLAGS, OPTCPPFLAGS
+	CFLAGS, CXXFLAGS, CPPFLAGS, OPTCFLAGS, OPTCXXFLAGS, OPTCPPFLAGS,
+	LDFLAGS, OPTLDFLAGS, FFLAGS, FCFLAGS, F77FLAGS.
+	This is equivalent to *FLAGS-=-something
 	Note that "something" can contain patterns, e.g.
 	+O?
 		removes all flags of type -O0, -O1, -O2, ...
@@ -191,12 +194,21 @@ C*FLAGS-=...
 	Removes from CFLAGS, CXXFLAGS, CPPFLAGS,
 	OPTCFLAG, OPTCXXFLAGS, OPTCPPFLAGS
 C*FLAGS/=/foo/bar
-	Similarly to C*FLAGS+=foo C*FLAGS-=bar
+	Similar to C*FLAGS+=foo C*FLAGS-=bar
+F*FLAGS=...
+	This sets FFLAGS. FCFLAGS, F77FLAGS simultaneously.
+F*FLAGS+=...
+	Adds to FFLAGS. FCFLAGS, F77FLAGS.
+F*FLAGS-=...
+	Removes from FFLAGS. FCFLAGS, F77FLAGS.
+F*FLAGS/=/foo/bar
+	Similar to F*FLAGS+=foo F*FLAGS-=bar
 *FLAGS=...
-	This sets CFLAGS, CXXFLAGS and clears CPPFLAGS, LDFLAGS,
-	OPTCFLAGS, OPTCXXFLAGS, OPTCPPFLAGS, OPTLDFLAGS
+	This sets CFLAGS, CXXFLAGS, FFLAGS, FCFLAGS, F77FLAGS, and clears
+	CPPFLAGS, LDFLAGS, OPTCFLAGS, OPTCXXFLAGS, OPTCPPFLAGS, OPTLDFLAGS
 *FLAGS+=...
-	Adds to CFLAGS, CXXFLAGS (currently the same as C*FLAGS+=...)
+	Adds to CFLAGS, CXXFLAGS, FFLAGS, FCFLAGS, F77FLAGS
+	(currently the same as C*FLAGS+=... F*FLAGS+=...)
 *FLAGS-=...
 	Removes from CPPFLAGS, CFLAGS, CXXFLAGS, LDFLAGS,
 	OPTCPPFLAGS, OPTCFLAGS, OPTCXXFLAGS, OPTLDFLAGS,
