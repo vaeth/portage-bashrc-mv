@@ -394,7 +394,7 @@ FlagExecute() {
 			ex=${ex#/}
 			FlagEval FlagReplaceAllFlags "${ex%%/*}" "${ex#*/}";;
 		'-'*)
-			FlagAddAllCFlags "$ex";;
+			FlagAddCFlags "$ex";;
 		'+flto*')
 			FlagSubAllFlags '-flto*' '-fuse-linker-plugin' '-emit-llvm';;
 		'+'*)
