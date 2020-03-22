@@ -250,28 +250,21 @@ FlagSub() {
 }
 
 FlagReplace() {
-	local repres repf repcurr repvar reppat repfound
+	local repres repf repcurr repvar reppat
 	repvar=$1
 	shift
 	eval repf=\$$repvar
 	reppat=$1
 	shift
-	if [ -z "${repf:++}" ]
-	then	eval $repvar=\$*
-		return
-	fi
 	repres=
-	repfound=:
 	for repcurr in $repf
 	do	case $repcurr in
 		$reppat)
 			$repfound && FlagAdd repres "$@"
-			repfound=false
 			continue;;
 		esac
 		repres=$repres${repres:+\ }$repcurr
 	done
-	$repfound && FlagAdd repres "$@"
 	eval $repvar=\$repres
 }
 

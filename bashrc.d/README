@@ -162,9 +162,11 @@ In addition, the following special COMMANDs are supported:
 	+fuse-linker-plugin +femit-llvm +fwhole-program
 
 /-foo/-bar
-	This is somewhat similar too +foo -bar with the only difference
-	that the preferred place of -bar is at the place of the first
-	matching -foo. For instance:
+	This is somewhat similar too +foo -bar with the following difference
+	that the place of -bar is at the place of the first matching -foo, and
+	that -bar is not added if there is no matching +foo (use -bar
+	afterwards if you want to add -bar in such a case).
+	For instance:
 	/-O?/-O2
 		will replace the first -O? by -O2 and remove all other -O?
 	/-march*/-march=native
