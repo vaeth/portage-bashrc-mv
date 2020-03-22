@@ -1,9 +1,10 @@
 portage-bashrc-mv-20.0
 ----------------------
-Backward-incompatible change:
-/-foo/-bar will not add -bar if -foo cannot be found.
-The previous behaviour can be achieved by /-foo/-bar -bar.
-As a side-effect, this will not unconditionally add -fstack-check for non-GNU.
+- Backward-incompatible change:
+  /-foo/-bar will not add -bar if -foo cannot be found.
+  The previous behaviour can be achieved by /-foo/-bar -bar.
+  As a side-effect, do not unconditionally add -fstack-check for non-GNU.
+- Output C++ and LD version.
 
 portage-bashrc-mv-19.0
 ----------------------

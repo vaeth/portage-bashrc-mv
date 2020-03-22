@@ -697,8 +697,12 @@ FlagInfoExport() {
 	elif $use_pgo
 	then	BashrcdEcho "Using PGO from $PGO_DIR"
 	fi
-	out=`gcc --version | head -n 1` || out=
+	out=`${CC:-gcc} --version | head -n 1` || out=
 	BashrcdEcho "${out:-cannot determine gcc version}"
+	out=`${CXX:-g++} --version | head -n 1` || out=
+	BashrcdEcho "${out:-cannot determine g++ version}"
+	out=`${LD:-ld} --version | head -n 1` || out=
+	BashrcdEcho "${out:-cannot determine ld version}"
 	BashrcdEcho "`uname -a`"
 }
 
