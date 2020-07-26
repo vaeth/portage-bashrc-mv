@@ -1,5 +1,6 @@
 #!/bin/bash
-# (C) Martin V\"ath <martin@mvath.de>
+# (C) Martin V\"ath <martin at mvath.de>
+# SPDX-License-Identifier: GPL-2.0-only
 
 # Portage explicitly unsets all CCACHE_* variables in each phase.
 # Therefore, we save them to BASHRCD_CCACHE_* in the setup phase;
