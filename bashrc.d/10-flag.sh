@@ -148,6 +148,7 @@ FLAG_FILTER_NONGNU=(
 	'-fdevirtualize-at-ltrans'
 	'-fdevirtualize-speculatively'
 	'-fdirectives-only'
+	'-ffat-lto-objects'
 	'-fgcse*'
 	'-fgraphite*'
 	'-finline-functions'
@@ -165,6 +166,7 @@ FLAG_FILTER_NONGNU=(
 	'-fmodulo*'
 	'-fno-enforce-eh-specs'
 	'-fno-ident'
+	'-fno-ipa-cp-clone'
 	'-fno-plt' # causes various runtime segfaults for clang:6 compiled code
 	'-fno-semantic-interposition'
 	'-fnothrow-opt'
