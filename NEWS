@@ -1,3 +1,7 @@
+portage-bashrc-mv-20.4
+----------------------
+- enable -fstack-clash-protection on clang
+
 portage-bashrc-mv-20.3
 ----------------------
 - Even more non-GNU
