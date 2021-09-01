@@ -176,7 +176,6 @@ FLAG_FILTER_NONGNU=(
 	'-frerun-cse-after-loop'
 	'-fsched*'
 	'-fsection-anchors'
-	'-fstack-clash-protection'
 	'-ftree*'
 	'-funsafe-loop*'
 	'-fuse-linker-plugin'
