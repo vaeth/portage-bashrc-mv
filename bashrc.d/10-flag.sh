@@ -196,7 +196,7 @@ FLAG_FILTER_GNU=(
 	'-flto-jobs=*'
 	'-fopenmp=*'
 	'-frewrite-includes'
-	'-fsanitize=cfi'
+	'-fsanitize=cfi*'
 	'-fsanitize=safe-stack'
 	'-mllvm'
 	'-mretpoline*'
