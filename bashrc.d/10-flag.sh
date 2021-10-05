@@ -204,6 +204,11 @@ FLAG_FILTER_GNU=(
 	'-Wl,-z,retpolineplt'
 )
 
+FLAG_FILTER_CLANG_LTO_DEP=(
+	'-fsanitize=cfi*'
+	'-fwhole-program-vtables'
+)
+
 FlagEval() {
 	case $- in
 	*f*)	eval "$*";;
@@ -594,6 +599,12 @@ FlagSetNonGNU() {
 	FlagSubAllFlags "${FLAG_FILTER_NONGNU[@]}"
 	FlagReplaceAllFlags '-fstack-check*' '-fstack-check'
 	# FlagAddCFlags '-flto' '-emit-llvm'
+	case " $LDFLAGS $CFLAGS $CXXFLAGS" in
+	*[[:space:]]'-flto'*)
+		;;
+	*)
+		FlagSubAllFlags "${FLAG_FILTER_CLANG_LTO_DEP[@]}";;
+	esac
 }
 
 FlagSetGNU() {
