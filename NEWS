@@ -1,3 +1,8 @@
+portage-bashrc-mv-20.5
+----------------------
+- Jannik2099: filter LTO-requiring flags if LTO is not enabled on clang
+- jiblime: Set USE_NONGNU=1 by default with active USE flag clang
+
 portage-bashrc-mv-20.4
 ----------------------
 - enable -fstack-clash-protection on clang
