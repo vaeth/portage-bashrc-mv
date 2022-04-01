@@ -186,7 +186,10 @@ FLAG_FILTER_NONGNU=(
 	'-mfunction-return*'
 	'-mindirect-branch*'
 	'-mvectorize*'
+	'-Waggressive-loop-optimizations'
+	'-Wclobbered'
 	'-Wl,-z,retpolineplt' # does not work, currently
+	'-Wreturn-local-addr'
 )
 
 FLAG_FILTER_GNU=(
