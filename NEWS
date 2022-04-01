@@ -1,3 +1,7 @@
+portage-bashrc-mv-20.6
+----------------------
+- Alessandro-Barbieri: Filter warnings not available in clang
+
 portage-bashrc-mv-20.5
 ----------------------
 - Jannik2099: filter LTO-requiring flags if LTO is not enabled on clang
