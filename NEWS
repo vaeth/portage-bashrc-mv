@@ -1,3 +1,7 @@
+portage-bashrc-mv-20.7
+----------------------
+- Filter -flto-odr-type-merging with USE_NONGNU=1
+
 portage-bashrc-mv-20.6
 ----------------------
 - Alessandro-Barbieri: Filter warnings not available in clang

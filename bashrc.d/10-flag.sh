@@ -161,6 +161,7 @@ FLAG_FILTER_NONGNU=(
 	'-flto=[0-9]*'
 	'-flto=auto'
 	'-flto=jobserver'
+	'-flto-odr-type-merging'
 	'-flto-partition=*'
 	'-flto-compression-level=*'
 	'-fmodulo*'
