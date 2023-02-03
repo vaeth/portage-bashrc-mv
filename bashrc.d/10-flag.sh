@@ -202,7 +202,8 @@ FLAG_FILTER_GNU=(
 	'-frewrite-includes'
 	'-fsanitize=cfi*'
 	'-fsanitize=safe-stack'
-	'-mllvm'
+	'-mllvm*'
+	'-Xclang*'
 	'-mretpoline*'
 	'-polly*'
 	'-Wl,-z,retpolineplt'
@@ -211,6 +212,12 @@ FLAG_FILTER_GNU=(
 FLAG_FILTER_CLANG_LTO_DEP=(
 	'-fsanitize=cfi*'
 	'-fwhole-program-vtables'
+)
+
+FLAG_ARGS_WITH_PARAMS=(
+	'-mllvm'
+	'-Xclang'
+	'--param'
 )
 
 FlagEval() {
@@ -222,6 +229,30 @@ FlagEval() {
 	esac
 }
 
+FlagCombineParameters() {
+	local combine comb par combvar
+	combvar=$1
+	shift
+	combine=
+	par=
+	for comb
+	do	if [ -n "$par" ]
+		then	combine=$combine${combine:+\ }"'$par $comb'"
+			[ -n "$comb" ] || combine=$combine\\\'\\\'
+			par=
+			continue
+		fi
+		case " ${FLAG_ARGS_WITH_PARAMS[*]} " in
+		*" $comb "*)
+			par=$comb
+			continue;;
+		esac
+		combine=$combine${combine:+\ }$comb
+	done
+	[ -z "$par" ] || combine=$combine${combine:+\ }$par
+	eval $combvar=\$combine
+}
+
 FlagNodupAdd() {
 	local addres addf addvar dups
 	dups=$1
@@ -229,6 +260,9 @@ FlagNodupAdd() {
 	addvar=$1
 	shift
 	eval addres=\$$addvar
+	FlagCombineParameters addf "$@"
+	eval "set -- a $addf"
+	shift
 	for addf
 	do	case " $addres $dups " in
 		*[[:space:]]"$addf"[[:space:]]*)
@@ -249,7 +283,11 @@ FlagSub() {
 	shift
 	subres=
 	eval sublist=\$$subvar
-	for subf in $sublist
+	FlagCombineParameters sublist $sublist
+	FlagCombineParameters subf "$@"
+	eval "set -- a $subf"
+	shift
+	eval "for subf in $sublist"'
 	do	for subpat
 		do	[ -n "${subpat:++}" ] || continue
 			case $subf in
@@ -259,7 +297,7 @@ FlagSub() {
 			esac
 		done
 		[ -z "${subf:++}" ] || subres=$subres${subres:+\ }$subf
-	done
+	done'
 	eval $subvar=\$subres
 }
 

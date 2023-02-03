@@ -240,6 +240,12 @@ SAFE
 	Note that this is the only command which modifies the variables
 	CONFIG_SITE NOLAFILEREMOVE CMAKE_MAKEFILE_GENERATOR
 
+Some arguments take parameters: If supported by the compiler, try to use
+the -arg=parameter version; otherwise, sometimes quoting may help, though
+that might be tricky.
+For instance, +'Xclang\ foo' will filter '-Xclang foo' but not
+'-Xclang bar'
+
 After all COMMANDs have been executed, some additional actions are taken.
 You can prevent this by setting the corresponding variables to false
 (either by a COMMAND or in the environment):

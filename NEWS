@@ -1,3 +1,8 @@
+portage-bashrc-mv-21.0
+----------------------
+- Attempt to handle arguments with parameters using an eplicit list, see
+  https://github.com/vaeth/portage-bashrc-mv/issues/10
+
 portage-bashrc-mv-20.7
 ----------------------
 - Filter -flto-odr-type-merging with USE_NONGNU=1
