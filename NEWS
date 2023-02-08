@@ -1,6 +1,11 @@
+portage-bashrc-mv-21.1
+----------------------
+- Enlarge the explicit list; thanks to Steven Newbury
+  https://github.com/sjnewbury for the contribution.
+
 portage-bashrc-mv-21.0
 ----------------------
-- Attempt to handle arguments with parameters using an eplicit list, see
+- Attempt to handle arguments with parameters using an explicit list, see
   https://github.com/vaeth/portage-bashrc-mv/issues/10
 
 portage-bashrc-mv-20.7

@@ -215,8 +215,21 @@ FLAG_FILTER_CLANG_LTO_DEP=(
 )
 
 FLAG_ARGS_WITH_PARAMS=(
-	'-mllvm'
-	'-Xclang'
+	'-mllvm'		# Forward to LLVM's option processing
+	'-mmlir'		# Forward to MLIR's option processing
+	'-Xanalyzer'		# Pass to the static analyzer
+	'-Xarch_device'		# Pass to the CUDA/HIP device compilation
+	'-Xarch_host'		# Pass to the CUDA/HIP host compilation
+	'-Xassembler'		# Pass to the assembler
+	'-Xclang'		# Pass to the clang compiler
+	'-Xcuda-fatbinary'	# Pass to fatbinary invocation
+	'-Xcuda-ptxas'		# Pass to the ptxas assembler
+	'-Xlinker'		# Pass to the linker
+	'-Xoffload-linker'	# Pass to offload linkers
+	'-Xoffload-linker-*'	# Pass to specified offload linkers
+	'-Xopenmp-target'	# Pass to target offloading toolchain
+	'-Xopenmp-target=*'	# Pass to specified target offloading toolchain
+	'-Xpreprocessor'	# Pass to the preprocessor
 	'--param'
 )
 
@@ -230,7 +243,7 @@ FlagEval() {
 }
 
 FlagCombineParameters() {
-	local combine comb par combvar
+	local combine comb par combvar flagargs
 	combvar=$1
 	shift
 	combine=
@@ -242,12 +255,14 @@ FlagCombineParameters() {
 			par=
 			continue
 		fi
-		case " ${FLAG_ARGS_WITH_PARAMS[*]} " in
-		*" $comb "*)
-			par=$comb
-			continue;;
-		esac
-		combine=$combine${combine:+\ }$comb
+		for flagargs in "${FLAG_ARGS_WITH_PARAMS[@]}"
+		do	case $comb in
+			$flagargs)
+				par=$comb
+				break;;
+			esac
+		done
+		[ -n "$par" ] || combine=$combine${combine:+\ }$comb
 	done
 	[ -z "$par" ] || combine=$combine${combine:+\ }$par
 	eval $combvar=\$combine
