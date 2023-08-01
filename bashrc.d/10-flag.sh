@@ -231,6 +231,13 @@ FLAG_ARGS_WITH_PARAMS=(
 	'--param'
 )
 
+FLAG_RUSTFLAGS_ARGS_WITH_PARAMS=(
+	'-C'			# Codegen option argument follows
+)
+
+FLAG_VAR_ARGS_WITH_PARAMS=(
+)
+
 FlagEval() {
 	case $- in
 	*f*)	eval "$*";;
@@ -241,7 +248,9 @@ FlagEval() {
 }
 
 FlagCombineParameters() {
-	local combine comb par combvar flagargs
+	local argpar combine comb par combvar flagargs
+	argpar=$1
+	shift
 	combvar=$1
 	shift
 	combine=
@@ -253,27 +262,30 @@ FlagCombineParameters() {
 			par=
 			continue
 		fi
-		for flagargs in "${FLAG_ARGS_WITH_PARAMS[@]}"
+		eval \
+		'for flagargs in "${'${argpar:-FLAG_ARGS_WITH_PARAMS}'[@]}"
 		do	case $comb in
 			$flagargs)
 				par=$comb
 				break;;
 			esac
-		done
+		done'
 		[ -n "$par" ] || combine=$combine${combine:+\ }$comb
 	done
 	[ -z "$par" ] || combine=$combine${combine:+\ }$par
 	eval $combvar=\$combine
 }
 
-FlagNodupAdd() {
-	local addres addf addvar dups
+FlagAddNodupArgPar() {
+	local argpar addres addf addvar dups
 	dups=$1
+	shift
+	argpar=$1
 	shift
 	addvar=$1
 	shift
 	eval addres=\$$addvar
-	FlagCombineParameters addf "$@"
+	FlagCombineParameters "$argpar" addf "$@"
 	eval "set -- a $addf"
 	shift
 	for addf
@@ -286,18 +298,24 @@ FlagNodupAdd() {
 	eval $addvar=\$addres
 }
 
-FlagAdd() {
-	FlagNodupAdd '' "$@"
+FlagAddArgPar() {
+	FlagAddNodupArgPar '' "$@"
 }
 
-FlagSub() {
-	local subres subpat subf subvar sublist
+FlagAdd() {
+	FlagAddArgPar '' "$@"
+}
+
+FlagSubArgPar() {
+	local argpar subres subpat subf subvar sublist
+	argpar=$1
+	shift
 	subvar=$1
 	shift
 	subres=
 	eval sublist=\$$subvar
-	FlagCombineParameters sublist $sublist
-	FlagCombineParameters subf "$@"
+	FlagCombineParameters "$argpar" sublist $sublist
+	FlagCombineParameters "$argpar" subf "$@"
 	eval "set -- a $subf"
 	shift
 	eval "for subf in $sublist"'
@@ -314,8 +332,14 @@ FlagSub() {
 	eval $subvar=\$subres
 }
 
-FlagReplace() {
-	local repres repf repcurr repvar reppat
+FlagSub() {
+	FlagSubArgPar '' "$@"
+}
+
+FlagReplaceArgPar() {
+	local argpar repres repf repcurr repvar reppat
+	argpar=$1
+	shift
 	repvar=$1
 	shift
 	eval repf=\$$repvar
@@ -325,12 +349,16 @@ FlagReplace() {
 	for repcurr in $repf
 	do	case $repcurr in
 		$reppat)
-			$repfound && FlagAdd repres "$@"
+			$repfound && FlagAddArgPar "$argpar" repres "$@"
 			continue;;
 		esac
 		repres=$repres${repres:+\ }$repcurr
 	done
 	eval $repvar=\$repres
+}
+
+FlagReplace() {
+	FlagReplaceArgPar '' "$@"
 }
 
 FlagSet() {
@@ -422,6 +450,22 @@ FlagSetAllFlags() {
 	OPTLDFLAGS=
 }
 
+FlagAddRustFlags() {
+	FlagAddArgPar FLAG_RUSTFLAGS_ARGS_WITH_PARAMS RUSTFLAGS "$@"
+}
+
+FlagSubRustFlags() {
+	FlagSubArgPar FLAG_RUSTFLAGS_ARGS_WITH_PARAMS RUSTFLAGS "$@"
+}
+
+FlagReplaceRustFlags() {
+	FlagReplaceArgPar FLAG_RUSTFLAGS_ARGS_WITH_PARAMS RUSTFLAGS "$@"
+}
+
+FlagSetRustFlags() {
+	FlagSet RUSTFLAGS "$@"
+}
+
 FlagAthlon() {
 	FlagSubCFlags '-march=*'
 	FlagAddCFlags '-march=athlon-4'
@@ -458,9 +502,9 @@ FlagExecute() {
 		'+'*)
 			FlagSubAllFlags "-${ex#+}";;
 		'C*FLAGS-='*)
-			FlagEval FlagSubCFlags ${ex#*-=};;
+			FlagEval FlagSubCFlags "${ex#*-=}";;
 		'C*FLAGS+='*)
-			FlagEval FlagAddCFlags ${ex#*+=};;
+			FlagEval FlagAddCFlags "${ex#*+=}";;
 		'C*FLAGS='*)
 			FlagEval FlagSetCFlags "${ex#*=}";;
 		'C*FLAGS/=/'*/*)
@@ -468,9 +512,9 @@ FlagExecute() {
 			ex=${ex#*/=/}
 			FlagEval FlagReplaceCFlags "${ex%%/*}" "${ex#*/}";;
 		'F*FLAGS-='*)
-			FlagEval FlagSubFFlags ${ex#*-=};;
+			FlagEval FlagSubFFlags "${ex#*-=}";;
 		'F*FLAGS+='*)
-			FlagEval FlagAddFFlags ${ex#*+=};;
+			FlagEval FlagAddFFlags "${ex#*+=}";;
 		'F*FLAGS='*)
 			FlagEval FlagSetFFlags "${ex#*=}";;
 		'F*FLAGS/=/'*/*)
@@ -478,15 +522,25 @@ FlagExecute() {
 			ex=${ex#*/=/}
 			FlagEval FlagReplaceFFlags "${ex%%/*}" "${ex#*/}";;
 		'*FLAGS-='*)
-			FlagEval FlagSubAllFlags ${ex#*-=};;
+			FlagEval FlagSubAllFlags "${ex#*-=}";;
 		'*FLAGS+='*)
-			FlagEval FlagAddAllFlags ${ex#*+=};;
+			FlagEval FlagAddAllFlags "${ex#*+=}";;
 		'*FLAGS='*)
 			FlagEval FlagSetAllFlags "${ex#*=}";;
 		'*FLAGS/=/'*/*)
 			ex=${ex%/}
 			ex=${ex#*/=/}
 			FlagEval FlagReplaceAllFlags "${ex%%/*}" "${ex#*/}";;
+		'RUSTFLAGS-='*)
+			FlagEval FlagSubRustFlags "${ex#*-=}";;
+		'RUSTFLAGS+='*)
+			FlagEval FlagAddRustFlags "${ex#*+=}";;
+		'RUSTFLAGS='*)
+			FlagEval FlagSetRustFlags "${ex#*=}";;
+		'RUSTFLAGS/=/'*/*)
+			ex=${ex%/}
+			ex=${ex#*/=/}
+			FlagEval FlagReplaceRustFlags "${ex%%/*}" "${ex#*/}";;
 		'ATHLON32')
 			FlagAthlon;;
 		'NOC*OPT='*|'NOC*='*)
@@ -522,14 +576,26 @@ FlagExecute() {
 			unset CMAKE_MAKEFILE_GENERATOR;;
 		*' '*'='*)
 			FlagEval "$ex";;
+		CFLAGS'/=/'*'/'*|CXXFLAGS'/=/'*'/'*|LDFLAGS'/=/'*'/'*)
+			ex=${ex%/}
+			exy=${ex#*/=/}
+			FlagEval FlagReplace \
+				"${ex%%/=/*}" "${exy%%/*}" "${exy#*/}";;
+		CFLAGS'-='*|CXXFLAGS'-='*|LDFLAGS'-='*)
+			FlagEval FlagSub "${ex%%-=*}" "${ex#*-=}";;
+		CFLAGS'+='*|CXXFLAGS'+='*|LDFLAGS)
+			FlagEval FlagAdd "${ex%%+=*}" "${ex#*+=}";;
 		*'/=/'*'/'*)
 			ex=${ex%/}
 			exy=${ex#*/=/}
-			FlagEval FlagReplace "${ex%%/=/*}" "${exy%%/*}" "${exy#*/}";;
+			FlagEval FlagReplaceArgPar FLAG_VAR_ARGS_WITH_PARAMS \
+				"${ex%%/=/*}" "${exy%%/*}" "${exy#*/}";;
 		*'-='*)
-			FlagEval FlagSub "${ex%%-=*}" ${ex#*-=};;
+			FlagEval FlagSubArgPar FLAG_VAR_ARGS_WITH_PARAMS \
+				"${ex%%-=*}" "${ex#*-=}";;
 		*'+='*)
-			FlagEval FlagAdd "${ex%%+=*}" ${ex#*+=};;
+			FlagEval FlagAddArgPar FLAG_VAR_ARGS_WITH_PARAMS \
+				"${ex%%+=*}" "${ex#*+=}";;
 		*'='*)
 			FlagEval FlagSet "${ex%%=*}" "${ex#*=}";;
 		*)
@@ -669,8 +735,9 @@ FlagSetGNU() {
 
 FlagMesonDedup() {
 	local newld=
-	FlagNodupAdd "$CFLAGS $CXXFLAGS $CPPFLAGS $FFLAGS $FCFLAGS $F77FLAGS" \
-		newld $LDFLAGS
+	FlagAddNodupArgPar \
+		"$CFLAGS $CXXFLAGS $CPPFLAGS $FFLAGS $FCFLAGS $F77FLAGS" \
+		'' newld $LDFLAGS
 	LDFLAGS=$newld
 }
 
@@ -757,7 +824,7 @@ FlagSetFlags() {
 FlagInfoExport() {
 	local out
 	for out in FEATURES CFLAGS CXXFLAGS CPPFLAGS FFLAGS FCFLAGS F77FLAGS \
-		LDFLAGS MAKEOPTS EXTRA_ECONF EXTRA_EMAKE USE_NONGNU
+		LDFLAGS RUSTFLAGS MAKEOPTS EXTRA_ECONF EXTRA_EMAKE USE_NONGNU
 	do	eval "if [ -n \"\${$out:++}\" ]
 		then	export $out
 			BashrcdEcho \"$out='\$$out'\"

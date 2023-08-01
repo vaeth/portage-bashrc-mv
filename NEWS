@@ -1,5 +1,10 @@
 portage-bashrc-mv-22.0
 ----------------------
+- Add support for RUSTFLAGS, particularly quote -C to subsequent parameter, see
+  https://github.com/vaeth/portage-bashrc-mv/issues/33
+- Document rules for implicit quoting to subsequent parameter
+- Do not implicitly quote for other VAR to subsequent parameter except
+  CFLAGS, CXXFLAGS, LDFLAGS
 - Do not filter some flags supported by current clang, see
   https://github.com/vaeth/portage-bashrc-mv/issues/34
 

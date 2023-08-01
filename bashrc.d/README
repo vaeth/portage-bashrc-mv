@@ -181,12 +181,25 @@ VAR+=WORDS
 	if necessary) unless VAR already contained this word.
 	The individuals words are separated by spaces, but WORDS
 	is evaluated so that you can use quoting.
+	Args from the array FLAG_VAR_ARGS_WITH_PARAMS (defaults to empty array)
+	are treated as quoted with the subsequent parameter.
 VAR-=WORDS
 	Analogously to VAR+=WORDS, only that the words are removed.
 VAR/=/foo/WORDS
 	Replace foo by WORDS
 
 The following names for VAR are treated specially in the above cases:
+
+RUSTFLAGS
+	As above, but use the array FLAG_RUSTFLAGS_ARGS_WITH_PARAMS
+	(default contains -C) instead of FLAG_VAR_ARGS_WITH_PARAMS.
+
+All of the following use FLAG_ARGS_WITH_PARAMS (default contains -Xclang)
+instead of FLAG_VAR_ARGS_WITH_PARAMS.
+
+CFLAGS...
+CXXFLAGS...
+LDFLAGS...
 C*FLAGS=...
 	This sets CFLAGS, CXXFLAGS simultaneously and clears CPPFLAGS,
 	OPTCFLAG, OPTCXXFLAGS, OPTCPPFLAGS
