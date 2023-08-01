@@ -168,8 +168,6 @@ FLAG_FILTER_NONGNU=(
 	'-fno-enforce-eh-specs'
 	'-fno-ident'
 	'-fno-ipa-cp-clone'
-	'-fno-plt' # causes various runtime segfaults for clang:6 compiled code
-	'-fno-semantic-interposition'
 	'-fnothrow-opt'
 	'-fpredictive-commoning'
 	'-frename-registers'
