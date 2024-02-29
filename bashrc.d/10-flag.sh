@@ -144,11 +144,9 @@ FLAG_FILTER_F77FLAGS=(
 )
 
 FLAG_FILTER_NONGNU=(
-	'-fcf-protection*'
 	'-fdevirtualize-at-ltrans'
 	'-fdevirtualize-speculatively'
 	'-fdirectives-only'
-	'-ffat-lto-objects'
 	'-fgcse*'
 	'-fgraphite*'
 	'-finline-functions'
@@ -205,6 +203,7 @@ FLAG_FILTER_GNU=(
 	'-mretpoline*'
 	'-polly*'
 	'-Wl,-z,retpolineplt'
+	'-Wunknown-command-line-argument'
 )
 
 FLAG_FILTER_CLANG_LTO_DEP=(
