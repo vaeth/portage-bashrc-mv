@@ -157,7 +157,6 @@ FLAG_FILTER_NONGNU=(
 	'-flimit-function-alignment'
 	'-floop*'
 	'-flto=[0-9]*'
-	'-flto=auto'
 	'-flto=jobserver'
 	'-flto-odr-type-merging'
 	'-flto-partition=*'
@@ -191,6 +190,7 @@ FLAG_FILTER_NONGNU=(
 
 FLAG_FILTER_GNU=(
 	'-emit-llvm'
+	'-fforce-emit-vtables'
 	'-flto=full'
 	'-flto=thin'
 	'-flto-jobs=*'
@@ -198,16 +198,22 @@ FLAG_FILTER_GNU=(
 	'-frewrite-includes'
 	'-fsanitize=cfi*'
 	'-fsanitize=safe-stack'
+	'-fsplit-lto-unit'
+	'-fstrict-vtable-pointers'
+	'-fvirtual-function-elimination'
+	'-fwhole-program-vtables'
 	'-mllvm*'
 	'-Xclang*'
 	'-mretpoline*'
 	'-polly*'
+	'-Wl,--lto-O*'
 	'-Wl,-z,retpolineplt'
 	'-Wunknown-command-line-argument'
 )
 
 FLAG_FILTER_CLANG_LTO_DEP=(
 	'-fsanitize=cfi*'
+	'-fvirtual-function-elimination'
 	'-fwhole-program-vtables'
 )
 
