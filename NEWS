@@ -1,4 +1,9 @@
 
+portage-bashrc-mv-22.2
+----------------------
+- Update more flags supported by GNU/NON_GNU. Thanks to blackteahamburger. See
+  https://github.com/vaeth/portage-bashrc-mv/pull/38
+
 portage-bashrc-mv-22.1
 ----------------------
 - Update some flags supported by GNU/NON_GNU. Thanks to Seryoga Leshii. See
