@@ -713,7 +713,7 @@ FlagScanDir() {
 }
 
 FlagSetUseNonGNU() {
-	has clang ${IUSE//+} && use clang && return 0
+	use clang && return 0
 	case $CC$CXX in
 	*clang*)
 		return 0;;
