@@ -227,6 +227,13 @@ FLAG_ARGS_WITH_PARAMS=(
 	'-Xassembler'		# Pass to the assembler
 	'-Xclang'		# Pass to the clang compiler
 	'-Xclang -mllvm'	# Pass to the clang compiler but not linker
+	'-Xclang=-mllvm'	# Pass to the clang compiler but not linker
+	'-Xclang -load'		# Pass to the clang compiler for loading
+	'-Xclang=-load'		# Pass to the clang compiler for loadnig
+	'-Xclang -plugin'	# Pass to the clang compiler as plugin
+	'-Xclang=-plugin'	# Pass to the clang compiler as plugin
+	'-Xclang -plugin-arg-*'	# Pass to the clang plugin
+	'-Xclang=-plugin-arg-*'	# Pass to the clang plugin
 	'-Xcuda-fatbinary'	# Pass to fatbinary invocation
 	'-Xcuda-ptxas'		# Pass to the ptxas assembler
 	'-Xlinker'		# Pass to the linker
@@ -315,13 +322,25 @@ FlagAddNodupArgPar() {
 	eval "set -- a $addf"
 	shift
 	for addf
-	do	case " $addres $dups " in
-		*[[:space:]]"$addf"[[:space:]]*)
-			continue;;
-		esac
-		addres=$addres${addres:+\ }$addf
+	do	FlagIsArgInListArgPar "$argpar" "$addf" $addres $dups || \
+			addres=$addres${addres:+\ }$addf
 	done
 	eval $addvar=\$addres
+}
+
+FlagIsArgInListArgPar() {
+  local argpar addf tlist curr
+  argpar=$1
+  shift
+  addf=$1
+  shift
+  FlagCombineParameters "$argpar" tlist "$@"
+  eval "set -- a $tlist"
+  shift
+  for curr
+  do	[ "$addf" != "$curr" ] || return 0
+  done
+  return 1
 }
 
 FlagAddArgPar() {
@@ -609,7 +628,7 @@ FlagExecute() {
 				"${ex%%/=/*}" "${exy%%/*}" "${exy#*/}";;
 		CFLAGS'-='*|CXXFLAGS'-='*|LDFLAGS'-='*)
 			FlagEval FlagSub "${ex%%-=*}" "${ex#*-=}";;
-		CFLAGS'+='*|CXXFLAGS'+='*|LDFLAGS)
+		CFLAGS'+='*|CXXFLAGS'+='*|LDFLAGS'+='*)
 			FlagEval FlagAdd "${ex%%+=*}" "${ex#*+=}";;
 		*'/=/'*'/'*)
 			ex=${ex%/}
