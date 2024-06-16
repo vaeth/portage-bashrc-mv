@@ -218,6 +218,7 @@ FLAG_FILTER_CLANG_LTO_DEP=(
 )
 
 FLAG_ARGS_WITH_PARAMS=(
+# Several words are allowed if prefixes are included as well
 	'-mllvm'		# Forward to LLVM's option processing
 	'-mmlir'		# Forward to MLIR's option processing
 	'-Xanalyzer'		# Pass to the static analyzer
@@ -225,6 +226,7 @@ FLAG_ARGS_WITH_PARAMS=(
 	'-Xarch_host'		# Pass to the CUDA/HIP host compilation
 	'-Xassembler'		# Pass to the assembler
 	'-Xclang'		# Pass to the clang compiler
+	'-Xclang -mllvm'	# Pass to the clang compiler but not linker
 	'-Xcuda-fatbinary'	# Pass to fatbinary invocation
 	'-Xcuda-ptxas'		# Pass to the ptxas assembler
 	'-Xlinker'		# Pass to the linker
@@ -253,32 +255,51 @@ FlagEval() {
 }
 
 FlagCombineParameters() {
-	local argpar combine comb par combvar flagargs
+	local argpar combine comb par combvar masspar
 	argpar=$1
 	shift
 	combvar=$1
 	shift
 	combine=
 	par=
+	masspar=
 	for comb
 	do	if [ -n "$par" ]
-		then	combine=$combine${combine:+\ }"'$par $comb'"
-			[ -n "$comb" ] || combine=$combine\\\'\\\'
-			par=
+		then	par="$par $comb"
+			masspar=\'$par\'
+			if ! FlagIsInArgPar "$argpar" "$par"
+			then	combine=$combine${combine:+\ }$masspar
+				[ -n "$comb" ] || combine=$combine\\\'\\\'
+				par=
+				masspar=
+			fi
 			continue
 		fi
-		eval \
-		'for flagargs in "${'${argpar:-FLAG_ARGS_WITH_PARAMS}'[@]}"
-		do	case $comb in
-			$flagargs)
-				par=$comb
-				break;;
-			esac
-		done'
-		[ -n "$par" ] || combine=$combine${combine:+\ }$comb
+		masspar=
+		if FlagIsInArgPar "$argpar" "$comb"
+		then	par=$comb
+		else	combine=$combine${combine:+\ }$comb
+		fi
 	done
+	[ -z "$masspar" ] || par=$masspar
 	[ -z "$par" ] || combine=$combine${combine:+\ }$par
 	eval $combvar=\$combine
+}
+
+FlagIsInArgPar() {
+	local argpar arg flagargs
+	argpar=$1
+	shift
+	arg=$1
+	eval set -- a '"${'${argpar:-FLAG_ARGS_WITH_PARAMS}'[@]}"'
+	shift
+	for flagargs
+	do	case $arg in
+		$flagargs)
+			return 0;;
+		esac
+	done
+	return 1
 }
 
 FlagAddNodupArgPar() {

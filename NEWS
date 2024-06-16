@@ -1,4 +1,10 @@
 
+portage-bashrc-mv-23.0
+----------------------
+- Support flag parameters to have parameters by extending FLAG_ARGS_WITH_PARAMS
+  interpretation and apply it for '-Xclang -mllvm'
+  https://github.com/vaeth/portage-bashrc-mv/issues/40
+
 portage-bashrc-mv-22.2
 ----------------------
 - Update more flags supported by GNU/NON_GNU. Thanks to blackteahamburger. See
