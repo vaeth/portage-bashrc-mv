@@ -22,7 +22,7 @@ gentoo portage system and serves two purposes.
    - Support for removing undesired locales before installation
    - Support for `CCACHE_*` variables.
    - Output of time information and title bar if
-     `app-portage/portage-utils`and `app-shells/runtitle`
+     `app-portage/portage-utils` and `app-shells/runtitle`
      (the latter from the mv overlay) are installed.
 
 See `bashrc.d/README` for more details.
